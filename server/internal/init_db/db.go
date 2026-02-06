@@ -1,11 +1,11 @@
-package dbSetup
+package init_db
 
 import (
 	"fmt"
+	"go_anime/internal/models"
 	"log"
 	"os"
 
-	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
@@ -33,18 +33,16 @@ func InitDb(dsn string) *gorm.DB {
 	return db
 }
 
-func MigrateDb(dsn string) {
-	m, err := migrate.New(
-		"file:///migrations",
-		dsn,
-	)
+func MigrateDb(db *gorm.DB) {
+	err := db.AutoMigrate(&models.UserModel{})
+
 	if err != nil {
-		log.Fatal("migrate init failed:", err)
+		panic(err)
 	}
 
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal("migrate up failed:", err)
-	}
+	err = db.AutoMigrate(&models.AnimeModel{})
 
-	log.Println("Migrations applied successfully")
+	if err != nil {
+		panic(err)
+	}
 }

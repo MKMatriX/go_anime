@@ -3,35 +3,39 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
-	"go_anime/internal/dbSetup"
+	"go_anime/internal/handlers"
+	"go_anime/internal/init_db"
 
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
 type Application struct {
-	server *echo.Echo
-	db     *gorm.DB
+	server  *echo.Echo
+	db      *gorm.DB
+	handler *handlers.Handler
 }
 
 func main() {
 	_ = godotenv.Load()
 
-	dsn := dbSetup.GetDsn()
-	db := dbSetup.InitDb(dsn)
-	dbSetup.MigrateDb(dsn)
+	dsn := init_db.GetDsn()
+	db := init_db.InitDb(dsn)
+	init_db.MigrateDb(db)
 
 	e := echo.New()
 
+	h := handlers.NewHandler(db)
+
 	app := Application{
-		server: e,
-		db:     db,
+		server:  e,
+		db:      db,
+		handler: h,
 	}
 
 	app.routes()
@@ -40,5 +44,7 @@ func main() {
 	log.Println(startMessage)
 
 	address := fmt.Sprintf(":%s", os.Getenv("INTERNAL_APP_PORT"))
-	e.Logger.Fatal(e.Start(address))
+	if err := e.Start(address); err != nil {
+		slog.Error("failed to start server", "error", err)
+	}
 }

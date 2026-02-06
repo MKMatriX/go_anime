@@ -1,0 +1,13 @@
+package models
+
+import "gorm.io/gorm"
+
+type UserModel struct {
+	gorm.Model
+	Login    string `gorm:"type:varchar(255);uniqueIndex;not null" json:"login"`
+	Password string `gorm:"type:varchar(255);not null" json:"-"`
+}
+
+func (receiver UserModel) TableName() string {
+	return "users"
+}
