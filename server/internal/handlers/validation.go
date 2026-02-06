@@ -38,11 +38,21 @@ func (h *Handler) ValidateBodyRequest(payload interface{}) []*ValidationError {
 				}
 
 				condition := validationError.Tag()
-				param := validationError.Param() // для oneof это будет "DEPOSIT WITHDRAW"
+				param := validationError.Param() // параметр проверки, если есть
 
 				errorMessage := fmt.Sprintf("'%s' haven't pass validation '%s'", jsonField, condition)
 				if param != "" {
 					errorMessage += fmt.Sprintf(" (%s)", param)
+				}
+
+				switch condition {
+				case "eqfield":
+					paramField, _ := reflected.Type().FieldByName(param)
+					jsonParamField := paramField.Tag.Get("json")
+					if jsonParamField == "" || jsonParamField == "-" {
+						jsonParamField = strings.ToLower(validationError.StructField())
+					}
+					errorMessage = fmt.Sprintf("Field '%s' must be equal to field '%s'", jsonField, jsonParamField)
 				}
 
 				currentValidationError := ValidationError{
