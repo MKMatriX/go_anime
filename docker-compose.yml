@@ -1,0 +1,69 @@
+services:
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${INTERFACE}:${EXTERNAL_APP_PORT}:${INTERNAL_APP_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    env_file:
+      - .env
+    networks:
+        - local
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${INTERFACE}:${DB_PORT}:${DB_PORT}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wallet"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    networks:
+        - local
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    restart: unless-stopped
+    ports:
+      - "5050:80" # pgAdmin на 5050 порту хоста
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'               # отключаем master password
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin   # чтобы настройки сохранялись
+    networks:
+    - local
+
+volumes:
+  pgdata:
+  pgadmin-data:
+
+networks:
+    local:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: ${SUBNET}
+                  gateway: ${INTERFACE}
