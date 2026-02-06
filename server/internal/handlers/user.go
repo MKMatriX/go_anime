@@ -10,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func (h *Handler) RegisterUser(c *echo.Context) error {
-	var request requests.RegisterUserRequest
+func (h *Handler) UserRegister(c *echo.Context) error {
+	var request requests.UserRegisterRequest
 	if err := c.Bind(&request); err != nil {
 		return c.JSON(
 			http.StatusBadRequest,
@@ -37,7 +37,32 @@ func (h *Handler) RegisterUser(c *echo.Context) error {
 	if err != nil {
 		return c.JSON(
 			http.StatusBadRequest,
-			err)
+			map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, user)
+}
+
+func (h *Handler) UserLogin(c *echo.Context) error {
+	var request requests.UserLoginRequest
+	if err := c.Bind(&request); err != nil {
+		return c.JSON(
+			http.StatusBadRequest,
+			map[string]string{"error": "invalid request"})
+	}
+
+	validationErrors := h.ValidateBodyRequest(request)
+	if validationErrors != nil {
+		return c.JSON(http.StatusBadRequest, validationErrors)
+	}
+
+	userService := services.NewUserService(h.db)
+	user, err := userService.LoginUser(&request)
+
+	if err != nil {
+		return c.JSON(
+			http.StatusBadRequest,
+			map[string]string{"error": err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, user)

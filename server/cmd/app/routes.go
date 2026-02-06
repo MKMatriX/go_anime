@@ -15,5 +15,6 @@ func (app *Application) routes() {
 		return ctx.String(http.StatusOK, "Echo is up")
 	})
 
-	app.server.POST("/api/v1/users", app.handler.RegisterUser)
+	app.server.POST("/api/v1/users", app.handler.UserRegister)
+	app.server.POST("/api/v1/users/login", app.handler.UserLogin)
 }

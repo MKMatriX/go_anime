@@ -28,7 +28,7 @@ func checkPasswordHash(password, hash string) bool {
 	return err == nil
 }
 
-func (s *UserService) RegisterUser(request *requests.RegisterUserRequest) (*models.UserModel, error) {
+func (s *UserService) RegisterUser(request *requests.UserRegisterRequest) (*models.UserModel, error) {
 	// hash the password
 	hashedPassword, err := hashPassword(request.Password)
 	if err != nil {
@@ -47,6 +47,23 @@ func (s *UserService) RegisterUser(request *requests.RegisterUserRequest) (*mode
 	}
 
 	return &createdUser, nil
+}
+
+func (s *UserService) LoginUser(request *requests.UserLoginRequest) (*models.UserModel, error) {
+	var user models.UserModel
+
+	result := s.db.Where("login = ?", request.Login).First(&user)
+	if result.Error != nil {
+		fmt.Println(result.Error)
+		return nil, errors.New("Login and/or password are incorrect")
+	}
+
+	if !checkPasswordHash(request.Password, user.Password) {
+		fmt.Println("password mismatch")
+		return nil, errors.New("Login and/or password are incorrect")
+	}
+
+	return &user, nil
 }
 
 func (s *UserService) GetUserByLogin(login string) (*models.UserModel, error) {
