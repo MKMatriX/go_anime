@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"errors"
+	"go_anime/internal/common"
+	"go_anime/internal/models"
 	"go_anime/internal/requests"
 	"go_anime/internal/services"
 	"net/http"
@@ -13,42 +15,34 @@ import (
 func (h *Handler) UserRegister(c *echo.Context) error {
 	var request requests.UserRegisterRequest
 	if err := c.Bind(&request); err != nil {
-		return c.JSON(
-			http.StatusBadRequest,
-			map[string]string{"error": "invalid request"})
+		return common.SendBadRequestResponse(c, err.Error())
 	}
 
 	validationErrors := h.ValidateBodyRequest(request)
 	if validationErrors != nil {
-		return c.JSON(http.StatusBadRequest, validationErrors)
+		return common.SendFailedValidateResponse(c, validationErrors)
 	}
 
 	userService := services.NewUserService(h.db)
 
 	_, err := userService.GetUserByLogin(request.Login)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return c.JSON(
-			http.StatusBadRequest,
-			map[string]string{"error": "User already exists"})
+		return common.SendBadRequestResponse(c, "User already exists")
 	}
 
 	user, err := userService.RegisterUser(&request)
 
 	if err != nil {
-		return c.JSON(
-			http.StatusBadRequest,
-			map[string]string{"error": err.Error()})
+		return common.SendBadRequestResponse(c, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return common.SendSuccessResponse(c, "Registered", user)
 }
 
 func (h *Handler) UserLogin(c *echo.Context) error {
 	var request requests.UserLoginRequest
 	if err := c.Bind(&request); err != nil {
-		return c.JSON(
-			http.StatusBadRequest,
-			map[string]string{"error": "invalid request"})
+		return common.SendBadRequestResponse(c, err.Error())
 	}
 
 	validationErrors := h.ValidateBodyRequest(request)
@@ -58,12 +52,27 @@ func (h *Handler) UserLogin(c *echo.Context) error {
 
 	userService := services.NewUserService(h.db)
 	user, err := userService.LoginUser(&request)
-
 	if err != nil {
-		return c.JSON(
-			http.StatusBadRequest,
-			map[string]string{"error": err.Error()})
+		return common.SendBadRequestResponse(c, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, user)
+	accessToken, refreshToken, err := common.GenerateJWT(*user)
+	if err != nil {
+		return common.SendBadRequestResponse(c, "JWT "+err.Error())
+	}
+
+	return common.SendSuccessResponse(c, "Login successful", map[string]interface{}{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+		"user":          user,
+	})
+}
+
+func (h Handler) GetAuthenticatedUser(c *echo.Context) error {
+	user, ok := c.Get("user").(models.UserModel)
+	if !ok {
+		return common.SendUnauthorizedResponse(c, "Unexpected error")
+	}
+
+	return common.SendSuccessResponse(c, "ok", user)
 }

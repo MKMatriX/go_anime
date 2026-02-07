@@ -50,11 +50,8 @@ func (s *UserService) RegisterUser(request *requests.UserRegisterRequest) (*mode
 }
 
 func (s *UserService) LoginUser(request *requests.UserLoginRequest) (*models.UserModel, error) {
-	var user models.UserModel
-
-	result := s.db.Where("login = ?", request.Login).First(&user)
-	if result.Error != nil {
-		fmt.Println(result.Error)
+	user, err := s.GetUserByLogin(request.Login)
+	if err != nil {
 		return nil, errors.New("Login and/or password are incorrect")
 	}
 
@@ -63,7 +60,7 @@ func (s *UserService) LoginUser(request *requests.UserLoginRequest) (*models.Use
 		return nil, errors.New("Login and/or password are incorrect")
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (s *UserService) GetUserByLogin(login string) (*models.UserModel, error) {

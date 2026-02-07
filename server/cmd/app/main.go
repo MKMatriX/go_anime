@@ -8,6 +8,7 @@ import (
 
 	"go_anime/internal/handlers"
 	"go_anime/internal/init_db"
+	"go_anime/internal/middleware"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v5"
@@ -16,9 +17,10 @@ import (
 )
 
 type Application struct {
-	server  *echo.Echo
-	db      *gorm.DB
-	handler *handlers.Handler
+	server        *echo.Echo
+	db            *gorm.DB
+	handler       *handlers.Handler
+	appMiddleware middleware.AppMiddleware
 }
 
 func main() {
@@ -32,10 +34,15 @@ func main() {
 
 	h := handlers.NewHandler(db)
 
+	appMiddleware := middleware.AppMiddleware{
+		DB: db,
+	}
+
 	app := Application{
-		server:  e,
-		db:      db,
-		handler: h,
+		server:        e,
+		db:            db,
+		handler:       h,
+		appMiddleware: appMiddleware,
 	}
 
 	app.routes()

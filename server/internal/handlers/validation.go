@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"go_anime/internal/common"
 	"reflect"
 	"strings"
 
@@ -15,14 +16,8 @@ func init() {
 	validate = validator.New(validator.WithRequiredStructEnabled())
 }
 
-type ValidationError struct {
-	Error     string `json:error`
-	Field     string `json: field`
-	Condition string `json: condition`
-}
-
-func (h *Handler) ValidateBodyRequest(payload interface{}) []*ValidationError {
-	var errors []*ValidationError
+func (h *Handler) ValidateBodyRequest(payload interface{}) []*common.ValidationError {
+	var errors []*common.ValidationError
 
 	err := validate.Struct(payload) // ← используем глобальный validate
 	if err != nil {
@@ -55,7 +50,7 @@ func (h *Handler) ValidateBodyRequest(payload interface{}) []*ValidationError {
 					errorMessage = fmt.Sprintf("Field '%s' must be equal to field '%s'", jsonField, jsonParamField)
 				}
 
-				currentValidationError := ValidationError{
+				currentValidationError := common.ValidationError{
 					Error:     errorMessage,
 					Field:     jsonField,
 					Condition: condition,
