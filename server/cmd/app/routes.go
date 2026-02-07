@@ -15,8 +15,25 @@ func (app *Application) routes() {
 		return ctx.String(http.StatusOK, "Echo is up")
 	})
 
-	app.server.POST("/api/v1/users", app.handler.UserRegister)
-	app.server.POST("/api/v1/users/login", app.handler.UserLogin)
+	apiGroup := app.server.Group("/api")
+	apiV1Group := apiGroup.Group("/v1")
+	userGroup := apiV1Group.Group("/users")
+	{
+		userGroup.POST("", app.handler.UserRegister)
+		userGroup.POST("/login", app.handler.UserLogin)
+	}
 
-	app.server.GET("/api/v1/users/check", app.handler.GetAuthenticatedUser, app.appMiddleware.Authentication)
+	profileGroup := apiV1Group.Group("/profile", app.appMiddleware.Authentication)
+	{
+		profileGroup.GET("/check", app.handler.GetAuthenticatedUser)
+	}
+
+	animeGroup := apiV1Group.Group("/anime", app.appMiddleware.Authentication)
+	{
+		animeGroup.GET("", app.handler.AnimeList)
+		animeGroup.POST("", app.handler.AnimeCreate)
+		animeGroup.PUT("/:ID", app.handler.AnimeUpdate)
+		animeGroup.DELETE("/:ID", app.handler.AnimeDelete)
+	}
+
 }

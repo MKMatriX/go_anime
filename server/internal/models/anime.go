@@ -1,9 +1,7 @@
 package models
 
-import "gorm.io/gorm"
-
 type AnimeModel struct {
-	gorm.Model
+	BaseModel
 	Name        string `json:"name"`
 	Description string `json:"description"`
 }
