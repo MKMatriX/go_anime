@@ -1,30 +1,54 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="min-h-screen bg-gray-100">
+    <header class="bg-white shadow">
+      <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <h1 class="text-xl font-semibold text-gray-800">
+          Vue Auth Demo
+        </h1>
+        <nav class="flex items-center gap-4">
+          <RouterLink class="text-sm text-blue-600 hover:underline" to="/profile">
+            Profile
+          </RouterLink>
+          <RouterLink
+            v-if="!auth.isAuthenticated"
+            class="text-sm text-blue-600 hover:underline"
+            to="/login"
+          >
+            Login
+          </RouterLink>
+          <RouterLink
+            v-if="!auth.isAuthenticated"
+            class="text-sm text-blue-600 hover:underline"
+            to="/register"
+          >
+            Register
+          </RouterLink>
+          <button
+            v-if="auth.isAuthenticated"
+            @click="handleLogout"
+            class="text-sm text-red-600 hover:underline"
+          >
+            Logout
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="max-w-md mx-auto px-4 py-10">
+      <RouterView />
+    </main>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script setup>
+import { useAuthStore } from './stores/auth'
+import { useRouter, RouterLink, RouterView } from 'vue-router'
+
+const auth = useAuthStore()
+const router = useRouter()
+
+const handleLogout = () => {
+  auth.logout()
+  router.push({ name: 'Login' })
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+</script>

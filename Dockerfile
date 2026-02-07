@@ -2,7 +2,7 @@ FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
-COPY ./server/go.mod ./server/go.sum ./
+COPY ./server/go.mod ./server/go.sum ./.env ./
 RUN go mod download
 
 COPY ./server .
