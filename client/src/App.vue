@@ -6,7 +6,21 @@
           Vue Auth Demo
         </h1>
         <nav class="flex items-center gap-4">
-          <RouterLink class="text-sm text-blue-600 hover:underline" to="/profile">
+          <RouterLink
+            v-if="auth.isAuthenticated"
+            class="text-sm text-blue-600 hover:underline"
+            to="/anime"
+          >
+            Anime
+          </RouterLink>
+
+        </nav>
+        <nav class="flex items-center gap-4">
+          <RouterLink
+            v-if="auth.isAuthenticated"
+            class="text-sm text-blue-600 hover:underline"
+            to="/profile"
+          >
             Profile
           </RouterLink>
           <RouterLink
@@ -34,17 +48,17 @@
       </div>
     </header>
 
-    <main class="max-w-md mx-auto px-4 py-10">
+    <main class="mx-auto px-4 py-10">
       <RouterView />
     </main>
   </div>
 </template>
 
 <script setup>
-import { useAuthStore } from './stores/auth'
+import { useUserStore } from './stores/auth'
 import { useRouter, RouterLink, RouterView } from 'vue-router'
 
-const auth = useAuthStore()
+const auth = useUserStore()
 const router = useRouter()
 
 const handleLogout = () => {

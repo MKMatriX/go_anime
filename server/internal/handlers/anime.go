@@ -15,6 +15,19 @@ func (h *Handler) AnimeList(c *echo.Context) error {
 	return common.SendSuccessResponse(c, "Anime list", &animeList)
 }
 
+func (h *Handler) AnimeItem(c *echo.Context) error {
+	service := services.NewAnimeService(h.db)
+
+	strId := c.Param("ID")
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		return common.SendBadRequestResponse(c, "Couldn't parse id: "+strId)
+	}
+
+	anime := service.GetById(id)
+	return common.SendSuccessResponse(c, "Anime found", &anime)
+}
+
 func (h *Handler) AnimeCreate(c *echo.Context) error {
 	service := services.NewAnimeService(h.db)
 

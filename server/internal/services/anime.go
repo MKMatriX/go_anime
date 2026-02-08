@@ -21,6 +21,12 @@ func (s *AnimeSevice) List() []*models.AnimeModel {
 	return anime
 }
 
+func (s *AnimeSevice) GetById(id int) *models.AnimeModel {
+	var anime *models.AnimeModel
+	s.db.Find(&anime, id)
+	return anime
+}
+
 func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.AnimeModel, error) {
 	anime := models.AnimeModel{
 		Name:        request.Name,

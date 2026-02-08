@@ -8,20 +8,12 @@
 
     <div v-else-if="auth.user" class="space-y-2 text-sm">
       <p>
-        <span class="font-medium">ID:</span>
+        <span class="font-medium">ID: </span>
         <span>{{ auth.user.id }}</span>
       </p>
       <p>
-        <span class="font-medium">Login:</span>
+        <span class="font-medium">Login: </span>
         <span>{{ auth.user.login }}</span>
-      </p>
-      <p v-if="auth.user.created_at">
-        <span class="font-medium">Created At:</span>
-        <span>{{ auth.user.created_at }}</span>
-      </p>
-      <p v-if="auth.user.updated_at">
-        <span class="font-medium">Updated At:</span>
-        <span>{{ auth.user.updated_at }}</span>
       </p>
     </div>
 
@@ -37,9 +29,9 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useAuthStore } from '../stores/auth'
+import { useUserStore } from '../stores/auth'
 
-const auth = useAuthStore()
+const auth = useUserStore()
 
 onMounted(async () => {
   if (auth.isAuthenticated && !auth.user) {

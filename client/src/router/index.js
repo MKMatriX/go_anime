@@ -1,35 +1,32 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from "../stores/auth";
+import { useUserStore } from "../stores/auth";
+import { animeRoutes } from "./anime";
 
-// Lazy-load pages
-const Login = () => import('../views/Login.vue')
-const Register = () => import('../views/Register.vue')
-const Profile = () => import('../views/Profile.vue')
-// Пока можно оставить пустой массив маршрутов
 const routes = [
 		{
 			path: '/login',
 			name: 'Login',
-			component: Login,
+			component: () => import('../views/user/Login.vue'),
 			meta: { guestOnly: true },
 		},
 		{
 			path: '/register',
 			name: 'Register',
-			component: Register,
+			component: () => import('../views/user/Register.vue'),
 			meta: { guestOnly: true },
 		},
 		{
 			path: '/profile',
 			name: 'Profile',
-			component: Profile,
+			component: () => import('../views/Profile.vue'),
 			meta: { requiresAuth: true },
 		},
 		{
 			path: '/',
 			redirect: '/login', // default route
 		},
+		...animeRoutes
 ]
 
 
@@ -39,7 +36,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-	const auth = useAuthStore()
+	const auth = useUserStore()
 
 	if (to.meta.requiresAuth && !auth.isAuthenticated) {
 		return next({ name: 'Login' })
