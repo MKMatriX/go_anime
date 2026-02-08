@@ -1,9 +1,11 @@
 <template>
   <div class="min-h-screen bg-gray-100">
     <header class="bg-white shadow">
-      <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <h1 class="text-xl font-semibold text-gray-800">
-          Vue Auth Demo
+          <a href="/" class="hover:shadow">
+            MKMatriX Pet Project
+          </a>
         </h1>
         <nav class="flex items-center gap-4">
           <RouterLink
@@ -13,7 +15,13 @@
           >
             Anime
           </RouterLink>
-
+          <RouterLink
+            v-if="inAnime"
+            class="text-sm text-blue-600 hover:underline"
+            to="/anime/create"
+          >
+            Добавить
+          </RouterLink>
         </nav>
         <nav class="flex items-center gap-4">
           <RouterLink
@@ -48,7 +56,7 @@
       </div>
     </header>
 
-    <main class="mx-auto px-4 py-10">
+    <main class="max-w-7xl mx-auto px-4 py-10">
       <RouterView />
     </main>
   </div>
@@ -57,12 +65,25 @@
 <script setup>
 import { useUserStore } from './stores/auth'
 import { useRouter, RouterLink, RouterView } from 'vue-router'
+import { onMounted, ref } from "vue";
 
 const auth = useUserStore()
-const router = useRouter()
+const route = useRouter()
+const inAnime = ref(false)
+
+onMounted(() => {
+  let matched = route.currentRoute.value.matched[0] || {}
+  inAnime.value = matched.path === "/anime"
+})
+
+route.afterEach((to, from) => {
+  let matched = route.currentRoute.value.matched[0] || {}
+  inAnime.value = matched.path === "/anime"
+});
+
 
 const handleLogout = () => {
   auth.logout()
-  router.push({ name: 'Login' })
+  route.push({ name: 'Login' })
 }
 </script>

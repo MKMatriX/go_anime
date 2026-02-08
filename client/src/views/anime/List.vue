@@ -6,6 +6,10 @@
 			Загрузка...
 		</div>
 
+		<p v-if="anime.error" class="text-sm text-red-600">
+			{{ anime.error }}
+		</p>
+
 		<div v-else-if="anime.items === null || anime.items.length === 0" class="text-center py-8 text-gray-500">
 			Список пуст
 		</div>
@@ -28,6 +32,6 @@
 	const anime = useAnimeStore();
 
 	onMounted(() => {
-		anime.list()
+		anime.getList()
 	})
 </script>

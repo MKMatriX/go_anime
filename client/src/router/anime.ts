@@ -17,7 +17,7 @@ export const animeRoutes: RouteRecordRaw[] = [
 				component: () => import('../views/anime/Create.vue'),
 			},
 			{
-				path: ':id/edit',
+				path: ':id(\\d+)/edit',
 				name: 'anime.edit',
 				component: () => import('../views/anime/Edit.vue'),
 				props: true,
