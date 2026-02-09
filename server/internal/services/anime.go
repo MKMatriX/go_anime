@@ -41,6 +41,7 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 	}
 	result := s.db.Create(&anime)
 
+	go s.getShikiInfo(&anime)
 	go s.getAnilibInfo(&anime) // yey my first go routine in this project
 
 	if result.Error != nil {
@@ -50,7 +51,7 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 }
 
 func (s *AnimeSevice) getAnilibInfo(anime *models.AnimeModel) {
-	info, err := GetAnimeInfo(anime.Name)
+	info, err := GetAnilistAnimeInfo(anime.Name)
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -63,6 +64,26 @@ func (s *AnimeSevice) getAnilibInfo(anime *models.AnimeModel) {
 	}
 
 	anime.AnilistInfo = string(json)
+	result := s.db.Save(anime)
+	if result.Error != nil {
+		slog.Error(result.Error.Error())
+	}
+}
+
+func (s *AnimeSevice) getShikiInfo(anime *models.AnimeModel) {
+	info, err := GetShikiAnimeInfo(anime.Name)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+
+	json, err := json.Marshal(info)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+
+	anime.ShikiInfo = string(json)
 	result := s.db.Save(anime)
 	if result.Error != nil {
 		slog.Error(result.Error.Error())

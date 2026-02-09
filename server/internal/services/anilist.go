@@ -49,7 +49,7 @@ type AniListResponse struct {
 	} `json:"data"`
 }
 
-func GetAnimeInfo(title string) (*AnimeInfo, error) {
+func GetAnilistAnimeInfo(title string) (*AnimeInfo, error) {
 	query := `
 	query ($search: String) {
 	  Media(search: $search, type: ANIME, sort: SEARCH_MATCH) {
