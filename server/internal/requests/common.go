@@ -1,5 +1,5 @@
 package requests
 
 type IdParamRequest struct {
-	ID uint
+	ID uint `path:"id" param:"id" binding:"required"`
 }

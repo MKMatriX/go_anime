@@ -14,7 +14,7 @@ import (
 func (h *Handler) UserRegister(c *echo.Context) error {
 	var request requests.UserRegisterRequest
 
-	err := h.bindAndValidate(c, request)
+	err := h.bindAndValidate(c, &request)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (h *Handler) UserRegister(c *echo.Context) error {
 func (h *Handler) UserLogin(c *echo.Context) error {
 	var request requests.UserLoginRequest
 
-	err := h.bindAndValidate(c, request)
+	err := h.bindAndValidate(c, &request)
 	if err != nil {
 		return err
 	}

@@ -49,10 +49,10 @@ func (app *Application) routes() {
 	animeGroup := apiV1Group.Group("/anime", app.appMiddleware.Authentication)
 	{
 		animeGroup.GET("", app.handler.AnimeList)
-		animeGroup.GET("/:ID", app.handler.AnimeItem)
+		animeGroup.GET("/:id", app.handler.AnimeItem)
 		animeGroup.POST("", app.handler.AnimeCreate)
-		animeGroup.PUT("/:ID", app.handler.AnimeUpdate)
-		animeGroup.DELETE("/:ID", app.handler.AnimeDelete)
+		animeGroup.PUT("/:id", app.handler.AnimeUpdate)
+		animeGroup.DELETE("/:id", app.handler.AnimeDelete)
 	}
 
 }

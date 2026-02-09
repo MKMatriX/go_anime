@@ -20,7 +20,10 @@ func (h *Handler) AnimeItem(c *echo.Context) error {
 	var request requests.IdParamRequest
 	h.bindIdParam(c, &request)
 
-	anime := service.GetById(request.ID)
+	anime, err := service.GetById(request.ID)
+	if err != nil {
+		return common.SendNotFoundResponse(c, err.Error())
+	}
 	return common.SendSuccessResponse(c, "Anime found", &anime)
 }
 
@@ -28,7 +31,7 @@ func (h *Handler) AnimeCreate(c *echo.Context) error {
 	service := services.NewAnimeService(h.db)
 
 	var request requests.AnimeCreateRequest
-	err := h.bindAndValidate(c, request)
+	err := h.bindAndValidate(c, &request)
 	if err != nil {
 		return err
 	}
@@ -51,7 +54,7 @@ func (h *Handler) AnimeUpdate(c *echo.Context) error {
 	}
 
 	var request requests.AnimeCreateRequest
-	err = h.bindAndValidate(c, request)
+	err = h.bindAndValidate(c, &request)
 	if err != nil {
 		return err
 	}
