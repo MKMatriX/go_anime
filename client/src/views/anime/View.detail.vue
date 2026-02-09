@@ -67,7 +67,7 @@
 						</dd>
 
 						<dt class="font-medium text-gray-600">Сезон</dt>
-						<dd class="text-gray-900">{{ anilistInfo.season || '—' }}</dd>
+						<dd class="text-gray-900">{{ formatSeason(anilistInfo.season) || '—' }}</dd>
 
 						<dt class="font-medium text-gray-600 pt-2">Описание</dt>
 						<dd class="text-gray-800 col-span-2 leading-relaxed">
@@ -103,6 +103,16 @@
 			NOT_YET_RELEASED: 'Анонсировано',
 			CANCELLED: 'Отменено',
 			HIATUS: 'На паузе'
+		}
+		return map[status] || status
+	}
+
+	const formatSeason = (status) => {
+		const map = {
+			WINTER: 'Зимний',
+			SPRING: 'Весенний',
+			SUMMER: 'Летний',
+			AUTUMN: 'Осенний',
 		}
 		return map[status] || status
 	}
