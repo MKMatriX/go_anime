@@ -21,7 +21,7 @@ func (s *AnimeSevice) List() []*models.AnimeModel {
 	return anime
 }
 
-func (s *AnimeSevice) GetById(id int) *models.AnimeModel {
+func (s *AnimeSevice) GetById(id uint) *models.AnimeModel {
 	var anime *models.AnimeModel
 	s.db.Find(&anime, id)
 	return anime
@@ -39,7 +39,7 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 	return &anime, nil
 }
 
-func (s *AnimeSevice) Update(id int, request *requests.AnimeCreateRequest) (*models.AnimeModel, error) {
+func (s *AnimeSevice) Update(id uint, request *requests.AnimeCreateRequest) (*models.AnimeModel, error) {
 	var anime *models.AnimeModel
 	result := s.db.Where("id = ?", id).First(&anime)
 	if result.Error != nil {
@@ -56,7 +56,7 @@ func (s *AnimeSevice) Update(id int, request *requests.AnimeCreateRequest) (*mod
 	return anime, nil
 }
 
-func (s *AnimeSevice) Delete(id int) error {
+func (s *AnimeSevice) Delete(id uint) error {
 	result := s.db.Delete(&models.AnimeModel{}, id)
 	if result.Error != nil {
 		return result.Error

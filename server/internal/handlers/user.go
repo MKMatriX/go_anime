@@ -6,7 +6,6 @@ import (
 	"go_anime/internal/models"
 	"go_anime/internal/requests"
 	"go_anime/internal/services"
-	"net/http"
 
 	"github.com/labstack/echo/v5"
 	"gorm.io/gorm"
@@ -14,18 +13,15 @@ import (
 
 func (h *Handler) UserRegister(c *echo.Context) error {
 	var request requests.UserRegisterRequest
-	if err := c.Bind(&request); err != nil {
-		return common.SendBadRequestResponse(c, err.Error())
-	}
 
-	validationErrors := h.ValidateBodyRequest(request)
-	if validationErrors != nil {
-		return common.SendFailedValidateResponse(c, validationErrors)
+	err := h.bindAndValidate(c, request)
+	if err != nil {
+		return err
 	}
 
 	userService := services.NewUserService(h.db)
 
-	_, err := userService.GetUserByLogin(request.Login)
+	_, err = userService.GetUserByLogin(request.Login)
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return common.SendBadRequestResponse(c, "User already exists")
 	}
@@ -41,13 +37,10 @@ func (h *Handler) UserRegister(c *echo.Context) error {
 
 func (h *Handler) UserLogin(c *echo.Context) error {
 	var request requests.UserLoginRequest
-	if err := c.Bind(&request); err != nil {
-		return common.SendBadRequestResponse(c, err.Error())
-	}
 
-	validationErrors := h.ValidateBodyRequest(request)
-	if validationErrors != nil {
-		return c.JSON(http.StatusBadRequest, validationErrors)
+	err := h.bindAndValidate(c, request)
+	if err != nil {
+		return err
 	}
 
 	userService := services.NewUserService(h.db)

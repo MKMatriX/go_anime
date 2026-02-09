@@ -4,7 +4,6 @@ import (
 	"go_anime/internal/common"
 	"go_anime/internal/requests"
 	"go_anime/internal/services"
-	"strconv"
 
 	"github.com/labstack/echo/v5"
 )
@@ -18,13 +17,10 @@ func (h *Handler) AnimeList(c *echo.Context) error {
 func (h *Handler) AnimeItem(c *echo.Context) error {
 	service := services.NewAnimeService(h.db)
 
-	strId := c.Param("ID")
-	id, err := strconv.Atoi(strId)
-	if err != nil {
-		return common.SendBadRequestResponse(c, "Couldn't parse id: "+strId)
-	}
+	var request requests.IdParamRequest
+	h.bindIdParam(c, &request)
 
-	anime := service.GetById(id)
+	anime := service.GetById(request.ID)
 	return common.SendSuccessResponse(c, "Anime found", &anime)
 }
 
@@ -32,13 +28,9 @@ func (h *Handler) AnimeCreate(c *echo.Context) error {
 	service := services.NewAnimeService(h.db)
 
 	var request requests.AnimeCreateRequest
-	if err := c.Bind(&request); err != nil {
-		return common.SendBadRequestResponse(c, err.Error())
-	}
-
-	validationErrors := h.ValidateBodyRequest(request)
-	if validationErrors != nil {
-		return common.SendFailedValidateResponse(c, validationErrors)
+	err := h.bindAndValidate(c, request)
+	if err != nil {
+		return err
 	}
 
 	anime, err := service.Create(&request)
@@ -52,23 +44,19 @@ func (h *Handler) AnimeCreate(c *echo.Context) error {
 func (h *Handler) AnimeUpdate(c *echo.Context) error {
 	service := services.NewAnimeService(h.db)
 
-	strId := c.Param("ID")
-	id, err := strconv.Atoi(strId)
+	var idRequest requests.IdParamRequest
+	err := h.bindIdParam(c, &idRequest)
 	if err != nil {
-		return common.SendBadRequestResponse(c, "Couldn't parse id: "+strId)
+		return err
 	}
 
 	var request requests.AnimeCreateRequest
-	if err := c.Bind(&request); err != nil {
-		return common.SendBadRequestResponse(c, err.Error())
+	err = h.bindAndValidate(c, request)
+	if err != nil {
+		return err
 	}
 
-	validationErrors := h.ValidateBodyRequest(request)
-	if validationErrors != nil {
-		return common.SendFailedValidateResponse(c, validationErrors)
-	}
-
-	anime, err := service.Update(id, &request)
+	anime, err := service.Update(idRequest.ID, &request)
 	if err != nil {
 		return common.SendBadRequestResponse(c, err.Error())
 	}
@@ -79,16 +67,16 @@ func (h *Handler) AnimeUpdate(c *echo.Context) error {
 func (h *Handler) AnimeDelete(c *echo.Context) error {
 	service := services.NewAnimeService(h.db)
 
-	strId := c.Param("ID")
-	id, err := strconv.Atoi(strId)
+	var idRequest requests.IdParamRequest
+	err := h.bindIdParam(c, &idRequest)
 	if err != nil {
-		return common.SendBadRequestResponse(c, "Couldn't parse id: "+strId)
+		return err
 	}
 
-	err = service.Delete(id)
+	err = service.Delete(idRequest.ID)
 	if err != nil {
 		return common.SendBadRequestResponse(c, err.Error())
 	}
 
-	return common.SendSuccessResponse(c, "Anime deleted", id)
+	return common.SendSuccessResponse(c, "Anime deleted", idRequest.ID)
 }
