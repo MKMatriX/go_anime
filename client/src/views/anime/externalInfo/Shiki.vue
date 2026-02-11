@@ -1,10 +1,10 @@
 <template>
-  <div v-if="data" class="space-y-10">
 	<div class="bg-gradient-to-r from-indigo-50 to-blue-50 px-6 py-4 border-b border-gray-200">
 		<h5 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
 			Shikimori
 		</h5>
 	</div>
+  <div v-if="data" class="space-y-10">
     <!-- HERO секция -->
     <div class="flex flex-col lg:flex-row gap-8 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
       <!-- Постер -->

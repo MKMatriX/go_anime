@@ -83,3 +83,20 @@ func (h *Handler) AnimeDelete(c *echo.Context) error {
 
 	return common.SendSuccessResponse(c, "Anime deleted", idRequest.ID)
 }
+
+func (h *Handler) AnimeEpisodes(c *echo.Context) error {
+	service := services.NewAnimeService(h.db)
+
+	var idRequest requests.IdParamRequest
+	err := h.bindIdParam(c, &idRequest)
+	if err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	episodes, err := service.GetEpisodes(idRequest.ID)
+	if err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	return common.SendSuccessResponse(c, "Episodes", episodes)
+}

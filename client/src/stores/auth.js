@@ -61,7 +61,6 @@ export const useUserStore = defineStore('auth', {
 			try {
 				const data = await getProfileRequest()
 				this.user = data.user || data
-				localStorage.setItem('user', JSON.stringify(this.user))
 			} catch (err) {
 				this.error = err.message || 'Fetch profile error'
 				throw err

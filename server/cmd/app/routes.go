@@ -50,6 +50,7 @@ func (app *Application) routes() {
 	{
 		animeGroup.GET("", app.handler.AnimeList)
 		animeGroup.GET("/:id", app.handler.AnimeItem)
+		animeGroup.GET("/:id/episodes", app.handler.AnimeEpisodes)
 		animeGroup.POST("", app.handler.AnimeCreate)
 		animeGroup.PUT("/:id", app.handler.AnimeUpdate)
 		animeGroup.DELETE("/:id", app.handler.AnimeDelete)

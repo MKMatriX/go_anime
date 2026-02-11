@@ -27,7 +27,6 @@ func (s *AnimeSevice) List() []*models.AnimeModel {
 func (s *AnimeSevice) GetById(id uint) (*models.AnimeModel, error) {
 	var anime *models.AnimeModel
 	result := s.db.Where("id = ?", id).First(&anime)
-	fmt.Println("find result: ", result)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -41,13 +40,45 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 	}
 	result := s.db.Create(&anime)
 
-	go s.getShikiInfo(&anime)
+	go s.getAniDBId(&anime)
 	go s.getAnilibInfo(&anime) // yey my first go routine in this project
+	go s.getShikiInfo(&anime)
 
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return &anime, nil
+}
+
+func (s *AnimeSevice) GetEpisodes(id uint) ([]*models.AnimeEpisodeModel, error) {
+	var dbEpisodes []*models.AnimeEpisodeModel
+	anime, err := s.GetById(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: check that we don't have episodes
+
+	toshoItems, err := GetToshoEpisodes(anime.AniDBId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, toshoItem := range toshoItems {
+		episode, ok := ParseToshoItemToEpisode(toshoItem, id)
+		if ok {
+			dbEpisodes = append(dbEpisodes, &episode)
+		} else {
+			fmt.Println("Failed to parse Tosho item ", toshoItem)
+		}
+	}
+
+	result := s.db.Create(dbEpisodes)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return dbEpisodes, nil
 }
 
 func (s *AnimeSevice) getAnilibInfo(anime *models.AnimeModel) {
@@ -84,6 +115,20 @@ func (s *AnimeSevice) getShikiInfo(anime *models.AnimeModel) {
 	}
 
 	anime.ShikiInfo = string(json)
+	result := s.db.Save(anime)
+	if result.Error != nil {
+		slog.Error(result.Error.Error())
+	}
+}
+
+func (s *AnimeSevice) getAniDBId(anime *models.AnimeModel) {
+	id, err := GetAniDBId(anime.Name)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+
+	anime.AniDBId = uint(id)
 	result := s.db.Save(anime)
 	if result.Error != nil {
 		slog.Error(result.Error.Error())
