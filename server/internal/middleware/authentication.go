@@ -6,12 +6,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v5"
-	"gorm.io/gorm"
 )
-
-type AppMiddleware struct {
-	DB *gorm.DB
-}
 
 func (am *AppMiddleware) Authentication(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c *echo.Context) error {

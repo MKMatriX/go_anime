@@ -23,7 +23,7 @@ func (h *Handler) ValidateBodyRequest(payload interface{}) []*common.ValidationE
 	if err != nil {
 		validationErrors, ok := err.(validator.ValidationErrors)
 		if ok {
-			reflected := reflect.ValueOf(payload)
+			reflected := reflect.Indirect(reflect.ValueOf(payload))
 
 			for _, validationError := range validationErrors {
 				field, _ := reflected.Type().FieldByName(validationError.StructField())

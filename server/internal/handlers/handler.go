@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"go_anime/internal/common"
 	"go_anime/internal/requests"
 
@@ -19,29 +20,26 @@ func NewHandler(db *gorm.DB) *Handler {
 }
 
 func (h *Handler) bindAndValidate(c *echo.Context, request interface{}) error {
-	response := c.Response()
-	defer c.SetResponse(response)
-
-	if err := echo.BindBody(c, &request); err != nil {
-		return common.SendBadRequestResponse(c, err.Error())
+	if err := echo.BindBody(c, request); err != nil {
+		common.SendBadRequestResponse(c, err.Error())
+		return errors.New("Bind error")
 	}
 
 	validationErrors := h.ValidateBodyRequest(request)
 	if validationErrors != nil {
-		return common.SendFailedValidateResponse(c, validationErrors)
+		common.SendFailedValidateResponse(c, validationErrors)
+		return errors.New("Validations errors")
 	}
 
 	return nil
 }
 
 func (h *Handler) bindIdParam(c *echo.Context, idParamRequest *requests.IdParamRequest) error {
-	response := c.Response()
-	defer c.SetResponse(response)
-
 	err := echo.BindPathValues(c, idParamRequest)
 
 	if err != nil {
-		return common.SendBadRequestResponse(c, "Couldn't parse id: "+c.Param("ID"))
+		common.SendBadRequestResponse(c, "Couldn't parse id: "+c.Param("ID"))
+		return errors.New("Binding Id param error")
 	}
 
 	return nil
