@@ -12,3 +12,7 @@ export async function registerRequest({ login, password, confirmPassword }) {
 export async function getProfileRequest() {
 	return await api.get('/profile')
 }
+
+export async function refreshRequest(refreshToken) {
+	return await api.post('/refresh', { refreshToken })
+}

@@ -10,3 +10,7 @@ type UserLoginRequest struct {
 	Login    string `json:"login" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
+
+type UserJWTRefreshRequest struct {
+	RefreshToken string `json:"refreshToken" validate:"required,min=10"`
+}

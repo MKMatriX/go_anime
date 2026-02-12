@@ -3,8 +3,10 @@ package services
 import (
 	"errors"
 	"fmt"
+	"go_anime/internal/common"
 	"go_anime/internal/models"
 	"go_anime/internal/requests"
+	"log/slog"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -70,4 +72,31 @@ func (s *UserService) GetUserByLogin(login string) (*models.UserModel, error) {
 		return nil, result.Error
 	}
 	return &user, nil
+}
+
+func (s *UserService) SaveRefreshTokenHash(user *models.UserModel, refreshToken *string) {
+	hashedToken := common.HashRefreshToken(*refreshToken)
+	user.RefreshTokenHash = hashedToken
+	result := s.db.Save(user)
+	if result.Error != nil {
+		slog.Error("Problem with saving hashed token")
+	}
+}
+
+func (s *UserService) GetUserByRefreshToken(refreshToken string) (*models.UserModel, error) {
+	if common.IsTokenExpired(refreshToken) {
+		return nil, fmt.Errorf("Expired refresh token")
+	}
+	hashedToken := common.HashRefreshToken(refreshToken)
+
+	var user *models.UserModel
+	result := s.db.Where("refresh_token_hash = ?", hashedToken).First(&user)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("Not valid refresh token")
+		}
+		return nil, result.Error
+	}
+
+	return user, nil
 }

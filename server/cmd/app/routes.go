@@ -39,6 +39,7 @@ func (app *Application) routes() {
 	{
 		userGroup.POST("", app.handler.UserRegister)
 		userGroup.POST("/login", app.handler.UserLogin)
+		userGroup.POST("/refresh", app.handler.UserJWTRefresh)
 	}
 
 	profileGroup := apiV1Group.Group("/profile", app.appMiddleware.Authentication)

@@ -1,7 +1,10 @@
 package common
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
+	"fmt"
 	"go_anime/internal/models"
 	"log/slog"
 	"os"
@@ -34,7 +37,7 @@ func GenerateJWT(user models.UserModel) (*string, *string, error) {
 	refreshAccessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &CustomJWTClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24 * 3)),
 		},
 	})
 	signedRefreshToken, err := refreshAccessToken.SignedString(secretKey)
@@ -64,4 +67,20 @@ func ParseJWT(token string) (*CustomJWTClaims, error) {
 
 func IsClaimsExpired(claims *CustomJWTClaims) bool {
 	return claims.ExpiresAt.Before(time.Now())
+}
+
+func IsTokenExpired(token string) bool {
+	claims, err := ParseJWT(token)
+	if err != nil {
+		slog.Error("Parse claims error: " + err.Error())
+	}
+
+	fmt.Printf("Claims: %v+", claims)
+
+	return claims.ExpiresAt.Before(time.Now())
+}
+
+func HashRefreshToken(token string) string {
+	h := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(h[:])
 }

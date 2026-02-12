@@ -53,8 +53,38 @@ func (h *Handler) UserLogin(c *echo.Context) error {
 	if err != nil {
 		return common.SendBadRequestResponse(c, "JWT "+err.Error())
 	}
+	go userService.SaveRefreshTokenHash(user, refreshToken)
 
 	return common.SendSuccessResponse(c, "Login successful", map[string]interface{}{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+		"user":          user,
+	})
+}
+
+func (h *Handler) UserJWTRefresh(c *echo.Context) error {
+	var request requests.UserJWTRefreshRequest
+
+	err := h.bindAndValidate(c, &request)
+	if err != nil {
+		return common.SendBadRequestResponse(c, "bind and validate error")
+	}
+
+	userService := services.NewUserService(h.db)
+	user, err := userService.GetUserByRefreshToken(request.RefreshToken)
+
+	if err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	accessToken, refreshToken, err := common.GenerateJWT(*user)
+
+	if err != nil {
+		return common.SendBadRequestResponse(c, "JWT "+err.Error())
+	}
+	go userService.SaveRefreshTokenHash(user, refreshToken)
+
+	return common.SendSuccessResponse(c, "Refresh successful", map[string]interface{}{
 		"access_token":  accessToken,
 		"refresh_token": refreshToken,
 		"user":          user,
