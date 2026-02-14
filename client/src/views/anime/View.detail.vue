@@ -44,12 +44,26 @@
 						>
 							Shikimori
 						</button>
+
+						<button
+							v-if="hasEpisodes"
+							@click="activeTab = 'episodes'"
+							:class="[
+								activeTab === 'episodes'
+								? 'border-indigo-500 text-indigo-600'
+								: 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700',
+								'whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium'
+							]"
+						>
+							Серии
+						</button>
 					</nav>
 				</div>
 
 				<div class="mt-6">
 					<Anilist v-if="activeTab === 'anilist' && anilistInfo" :data="anilistInfo" />
 					<Shiki v-if="activeTab === 'shiki' && shikiInfo" :data="shikiInfo" />
+					<Episodes v-if="activeTab === 'episodes' && episodes" :data="episodes" />
 				</div>
 			</div>
 
@@ -67,12 +81,14 @@
 	import { useAnimeStore } from "../../stores/anime";
 	import Anilist from "./externalInfo/Anilist.vue";
 	import Shiki from "./externalInfo/Shiki.vue";
+	import Episodes from "./episode/List.vue";
 
 	const animeStore = useAnimeStore();
 	const route = useRoute()
 
 	const anilistInfo = ref(null)
 	const shikiInfo = ref(null)
+	const episodes = ref(null)
 	const activeTab = ref('anilist')
 
 	onMounted(async () => {
@@ -96,6 +112,15 @@
 			shikiInfo.value = null
 		}
 
+		try {
+			episodes.value = animeStore.item?.episodes
+			? animeStore.item?.episodes
+			: null
+		} catch (e) {
+			episodes.value = null
+		}
+
+
 		// Умная инициализация активной вкладки
 		if (!anilistInfo.value && shikiInfo.value) {
 			activeTab.value = 'shiki'
@@ -104,4 +129,6 @@
 
 	const hasAnilist = computed(() => !!anilistInfo.value)
 	const hasShiki   = computed(() => !!shikiInfo.value)
+	const hasEpisodes   = computed(() => !!episodes.value && episodes.value.length > 0)
+
 </script>

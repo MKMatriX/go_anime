@@ -45,4 +45,10 @@ func MigrateDb(db *gorm.DB) {
 	if err != nil {
 		panic(err)
 	}
+
+	err = db.AutoMigrate(&models.AnimeEpisodeModel{})
+
+	if err != nil {
+		panic(err)
+	}
 }

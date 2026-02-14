@@ -3,7 +3,7 @@ package models
 type AnimeEpisodeModel struct {
 	BaseModel
 
-	Anime   AnimeModel
+	// Anime   AnimeModel
 	AnimeID uint `json:"animeId gorm:"index;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
 	EpisodeNumber int    `json:"episodeNumber"`

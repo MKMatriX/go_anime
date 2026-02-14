@@ -26,7 +26,7 @@ func (s *AnimeSevice) List() []*models.AnimeModel {
 
 func (s *AnimeSevice) GetById(id uint) (*models.AnimeModel, error) {
 	var anime *models.AnimeModel
-	result := s.db.Where("id = ?", id).First(&anime)
+	result := s.db.Preload("Episodes").Where("id = ?", id).First(&anime)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -40,7 +40,11 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 	}
 	result := s.db.Create(&anime)
 
-	go s.getAniDBId(&anime)
+	pipe := func() {
+		s.getAniDBId(&anime)
+		s.GetEpisodes(&anime)
+	}
+	go pipe()
 	go s.getAnilibInfo(&anime) // yey my first go routine in this project
 	go s.getShikiInfo(&anime)
 
@@ -50,14 +54,8 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 	return &anime, nil
 }
 
-func (s *AnimeSevice) GetEpisodes(id uint) ([]*models.AnimeEpisodeModel, error) {
+func (s *AnimeSevice) GetEpisodes(anime *models.AnimeModel) ([]*models.AnimeEpisodeModel, error) {
 	var dbEpisodes []*models.AnimeEpisodeModel
-	anime, err := s.GetById(id)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: check that we don't have episodes
 
 	toshoItems, err := GetToshoEpisodes(anime.AniDBId)
 	if err != nil {
@@ -65,7 +63,7 @@ func (s *AnimeSevice) GetEpisodes(id uint) ([]*models.AnimeEpisodeModel, error) 
 	}
 
 	for _, toshoItem := range toshoItems {
-		episode, ok := ParseToshoItemToEpisode(toshoItem, id)
+		episode, ok := ParseToshoItemToEpisode(toshoItem, anime.ID)
 		if ok {
 			dbEpisodes = append(dbEpisodes, &episode)
 		} else {

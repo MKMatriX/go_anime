@@ -93,7 +93,12 @@ func (h *Handler) AnimeEpisodes(c *echo.Context) error {
 		return common.SendBadRequestResponse(c, err.Error())
 	}
 
-	episodes, err := service.GetEpisodes(idRequest.ID)
+	anime, err := service.GetById(idRequest.ID)
+	if err != nil {
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	episodes, err := service.GetEpisodes(anime)
 	if err != nil {
 		return common.SendBadRequestResponse(c, err.Error())
 	}

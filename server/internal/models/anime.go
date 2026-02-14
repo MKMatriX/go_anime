@@ -7,7 +7,7 @@ type AnimeModel struct {
 	AnilistInfo string              `json:"anilistInfo"`
 	ShikiInfo   string              `json:"shikiInfo"`
 	AniDBId     uint                `json:"aniDBId"`
-	Episodes    []AnimeEpisodeModel `gorm:"foreignKey:AnimeID"`
+	Episodes    []AnimeEpisodeModel `json:"episodes" gorm:"foreignKey:AnimeID"`
 }
 
 func (receiver AnimeModel) TableName() string {

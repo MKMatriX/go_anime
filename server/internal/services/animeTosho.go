@@ -101,7 +101,7 @@ func GetToshoEpisodes(aniDBId uint) ([]ToshoItem, error) {
 	req.Header.Set("Accept", "application/xml")
 	req.Header.Set("User-Agent", "go_anime/0.1 (matrix-elf@yandex.ru)")
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
