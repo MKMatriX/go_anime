@@ -92,7 +92,6 @@ func GetToshoEpisodes(aniDBId uint) ([]ToshoItem, error) {
 
 	fullURL := base + "?" + params.Encode()
 
-	fmt.Println("GET request to ", fullURL)
 	req, err := http.NewRequest("GET", fullURL, http.NoBody)
 	if err != nil {
 		return nil, err
