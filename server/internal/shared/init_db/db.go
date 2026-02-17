@@ -2,7 +2,7 @@ package init_db
 
 import (
 	"fmt"
-	"go_anime/internal/models"
+	"go_anime/internal/shared/models"
 	"log"
 	"os"
 

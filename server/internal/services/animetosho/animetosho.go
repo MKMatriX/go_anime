@@ -3,7 +3,7 @@ package services
 import (
 	"encoding/xml"
 	"fmt"
-	"go_anime/internal/models"
+	"go_anime/internal/shared/models"
 	"io"
 	"net/http"
 	"net/url"

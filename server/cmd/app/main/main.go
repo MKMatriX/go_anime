@@ -7,8 +7,8 @@ import (
 	"os"
 
 	"go_anime/internal/handlers"
-	"go_anime/internal/init_db"
 	"go_anime/internal/middleware"
+	"go_anime/internal/shared/init_db"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v5"

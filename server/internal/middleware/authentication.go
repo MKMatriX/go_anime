@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"go_anime/internal/common"
-	"go_anime/internal/models"
+	"go_anime/internal/shared/common"
+	"go_anime/internal/shared/models"
 	"strings"
 
 	"github.com/labstack/echo/v5"

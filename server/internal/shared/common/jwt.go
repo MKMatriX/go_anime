@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"go_anime/internal/models"
+	"go_anime/internal/shared/models"
 	"log/slog"
 	"os"
 	"time"

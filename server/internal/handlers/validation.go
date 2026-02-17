@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"go_anime/internal/common"
+	"go_anime/internal/shared/common"
 	"reflect"
 	"strings"
 

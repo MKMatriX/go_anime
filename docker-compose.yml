@@ -1,7 +1,9 @@
 services:
 
-  app:
-    build: .
+  main:
+    build:
+      context: .
+      target: main  # Из Dockerfile
     restart: unless-stopped
     ports:
       - "${INTERFACE}:${EXTERNAL_APP_PORT}:${INTERNAL_APP_PORT}"
@@ -16,8 +18,102 @@ services:
       - DB_NAME=${DB_NAME}
     env_file:
       - .env
+    volumes:
+      - downloads:/downloads
     networks:
         - local
+
+  anidb:
+    build:
+      context: .
+      target: anidb
+    restart: unless-stopped
+    ports:
+      - "${INTERFACE}:8081:8081"  # Внешний:внутренний
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    env_file:
+      - .env
+    volumes:
+      - downloads:/downloads
+    networks:
+      - local
+
+  anilist:
+    build:
+      context: .
+      target: anilist
+    restart: unless-stopped
+    ports:
+      - "${INTERFACE}:8082:8082"  # Внешний:внутренний
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    env_file:
+      - .env
+    volumes:
+      - downloads:/downloads
+    networks:
+      - local
+
+  animetosho:
+    build:
+      context: .
+      target: animetosho
+    restart: unless-stopped
+    ports:
+      - "${INTERFACE}:8083:8083"  # Внешний:внутренний
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    env_file:
+      - .env
+    volumes:
+      - downloads:/downloads
+    networks:
+      - local
+
+  shikimori:
+    build:
+      context: .
+      target: shikimori
+    restart: unless-stopped
+    ports:
+      - "${INTERFACE}:8084:8084"  # Внешний:внутренний
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    env_file:
+      - .env
+    volumes:
+      - downloads:/downloads
+    networks:
+      - local
   db:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -58,6 +154,7 @@ services:
 volumes:
   pgdata:
   pgadmin-data:
+  downloads:  # Новый volume для файлов (локально: ./downloads)
 
 networks:
     local:

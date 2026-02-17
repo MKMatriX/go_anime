@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"errors"
-	"go_anime/internal/common"
 	"go_anime/internal/requests"
+	"go_anime/internal/shared/common"
 
 	"github.com/labstack/echo/v5"
 	"gorm.io/gorm"

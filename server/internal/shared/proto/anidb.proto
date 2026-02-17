@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package anidb;
+
+option go_package = "go_anime/internal/shared/proto/anidb";
+
+service AniDBService {
+  rpc GetAniDBId(GetAniDBIdRequest) returns (GetAniDBIdResponse);
+}
+
+message GetAniDBIdRequest {
+  string anime_name = 1;
+}
+
+message GetAniDBIdResponse {
+  int32 id = 1;
+  string error = 2;  // Если ошибка, вернём строку (или используйте status codes)
+}

@@ -3,9 +3,9 @@ package services
 import (
 	"errors"
 	"fmt"
-	"go_anime/internal/common"
-	"go_anime/internal/models"
 	"go_anime/internal/requests"
+	"go_anime/internal/shared/common"
+	"go_anime/internal/shared/models"
 	"log/slog"
 
 	"golang.org/x/crypto/bcrypt"
