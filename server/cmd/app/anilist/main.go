@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -77,8 +76,6 @@ func int32OrZero(v *int) int32 {
 }
 
 func main() {
-	fmt.Println("anilist microservice started")
-
 	lis, err := net.Listen("tcp", ":"+os.Getenv("ANILIST_PORT"))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

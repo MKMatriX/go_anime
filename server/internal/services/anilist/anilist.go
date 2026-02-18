@@ -2,9 +2,11 @@ package services
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -50,6 +52,8 @@ type AniListResponse struct {
 }
 
 func GetAnilistAnimeInfo(title string) (*AnimeInfo, error) {
+	slog.Log(context.Background(), slog.LevelInfo, "Getting anilist info for "+title)
+
 	query := `
 	query ($search: String) {
 	  Media(search: $search, type: ANIME, sort: SEARCH_MATCH) {
@@ -78,8 +82,6 @@ func GetAnilistAnimeInfo(title string) (*AnimeInfo, error) {
 	    }
 	  }
 	}`
-
-	fmt.Println("anilist service called")
 
 	variables := map[string]string{
 		"search": title,
