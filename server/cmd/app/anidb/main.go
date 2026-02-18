@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net"
+	"os"
 
 	anidbService "go_anime/internal/services/anidb" // Ваша логика
 	"go_anime/internal/shared/proto/anidb"          // Сгенерированный proto
@@ -24,7 +25,7 @@ func (s *server) GetAniDBId(ctx context.Context, req *anidb.GetAniDBIdRequest) (
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":8081")
+	lis, err := net.Listen("tcp", ":"+os.Getenv("ANIDB_PORT"))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

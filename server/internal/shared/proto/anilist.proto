@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package anilist;
+
+option go_package = "proto/anilist";
+
+// AniListService — основной сервис для работы с AniList API
+service AniListService {
+  // GetAnimeInfo — получает информацию об аниме по названию (аналог GetAnilistAnimeInfo)
+  rpc GetAnimeInfo(GetAnimeInfoRequest) returns (GetAnimeInfoResponse);
+}
+
+// Запрос
+message GetAnimeInfoRequest {
+  string title = 1;           // Название аниме для поиска
+  // Можно добавить в будущем:
+  // string language = 2;  // предпочтительный язык (romaji/english/native)
+  // int32 max_results = 3; // если захотим возвращать несколько вариантов
+}
+
+// Ответ
+message GetAnimeInfoResponse {
+  oneof result {
+    AnimeInfo anime = 1;
+    Error     error = 2;
+  }
+
+  // Альтернативно можно сделать поле error отдельно и проверять его,
+  // но oneof делает ответ более явным (либо данные, либо ошибка)
+}
+
+// Основная структура аниме (почти 1:1 с вашей AnimeInfo)
+message AnimeInfo {
+  int32  id              = 1;
+  Title  title           = 2;
+  string description     = 3;
+  string format          = 4;
+  string status          = 5;
+
+  int32 episodes     = 6;
+  int32 duration     = 7;
+  int32 average_score = 8;  // averageScore → average_score (snake_case принято в proto)
+
+  repeated string genres     = 9;
+  string season              = 10;
+  int32 season_year = 11;
+
+  Date   start_date          = 12;
+  Image  cover_image         = 13;
+}
+
+message Title {
+  string romaji  = 1;
+  string english = 2;
+  string native  = 3;
+}
+
+message Date {
+  int32 year  = 1;
+  int32 month = 2;
+  int32 day   = 3;
+}
+
+message Image {
+  string large = 1;
+  // Можно добавить medium, small и color если понадобится
+}
+
+message Error {
+  string message = 1;
+  int32  code    = 2;     // опционально — HTTP-like коды (404, 429 и т.д.)
+}

@@ -79,6 +79,8 @@ func GetAnilistAnimeInfo(title string) (*AnimeInfo, error) {
 	  }
 	}`
 
+	fmt.Println("anilist service called")
+
 	variables := map[string]string{
 		"search": title,
 	}

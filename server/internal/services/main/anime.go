@@ -2,11 +2,14 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"go_anime/internal/requests"
 	"go_anime/internal/shared/models"
 	"go_anime/internal/shared/proto/anidb"
+	"go_anime/internal/shared/proto/anilist"
 	"log/slog"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -43,12 +46,12 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 	}
 	result := s.db.Create(&anime)
 
-	pipe := func() {
-		s.getAniDBId(&anime)
-		// s.GetEpisodes(&anime)
-	}
-	go pipe()
-	// go s.getAnilibInfo(&anime) // yey my first go routine in this project
+	// pipe := func() {
+	// 	s.getAniDBId(&anime)
+	// 	// s.GetEpisodes(&anime)
+	// }
+	// go pipe()
+	go s.getAnilibInfo(&anime) // yey my first go routine in this project
 	// go s.getShikiInfo(&anime)
 
 	if result.Error != nil {
@@ -82,25 +85,43 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 // 	return dbEpisodes, nil
 // }
 
-// func (s *AnimeSevice) getAnilibInfo(anime *models.AnimeModel) {
-// 	info, err := GetAnilistAnimeInfo(anime.Name)
-// 	if err != nil {
-// 		slog.Error(err.Error())
-// 		return
-// 	}
+func (s *AnimeSevice) getAnilibInfo(anime *models.AnimeModel) {
+	conn, err := grpc.NewClient(
+		"anilist:"+os.Getenv("ANILIST_PORT"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		slog.Error("failed to dial anilist: " + err.Error())
+		return
+	}
+	defer conn.Close()
 
-// 	json, err := json.Marshal(info)
-// 	if err != nil {
-// 		slog.Error(err.Error())
-// 		return
-// 	}
+	client := anilist.NewAniListServiceClient(conn)
+	resp, err := client.GetAnimeInfo(
+		context.Background(),
+		&anilist.GetAnimeInfoRequest{Title: anime.Name},
+	)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	if resp.GetError() != nil {
+		slog.Error(resp.GetError().Message)
+		return
+	}
 
-// 	anime.AnilistInfo = string(json)
-// 	result := s.db.Save(anime)
-// 	if result.Error != nil {
-// 		slog.Error(result.Error.Error())
-// 	}
-// }
+	json, err := json.Marshal(resp.Result)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+
+	anime.AnilistInfo = string(json)
+	result := s.db.Save(anime)
+	if result.Error != nil {
+		slog.Error(result.Error.Error())
+	}
+}
 
 // func (s *AnimeSevice) getShikiInfo(anime *models.AnimeModel) {
 // 	info, err := GetShikiAnimeInfo(anime.Name)
@@ -123,7 +144,10 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 // }
 
 func (s *AnimeSevice) getAniDBId(anime *models.AnimeModel) {
-	conn, err := grpc.NewClient("anidb:8081", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(
+		"anidb:"+os.Getenv("ANIDB_PORT"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		slog.Error("failed to dial anidb: " + err.Error())
 		return

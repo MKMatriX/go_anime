@@ -29,7 +29,7 @@ services:
       target: anidb
     restart: unless-stopped
     ports:
-      - "${INTERFACE}:8081:8081"  # Внешний:внутренний
+      - "${INTERFACE}:${ANIDB_PORT}:${ANIDB_PORT}"  # Внешний:внутренний
     depends_on:
       db:
         condition: service_healthy
@@ -52,7 +52,7 @@ services:
       target: anilist
     restart: unless-stopped
     ports:
-      - "${INTERFACE}:8082:8082"  # Внешний:внутренний
+      - "${INTERFACE}:${ANILIST_PORT}:${ANILIST_PORT}"  # Внешний:внутренний
     depends_on:
       db:
         condition: service_healthy
