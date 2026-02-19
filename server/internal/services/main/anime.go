@@ -10,6 +10,7 @@ import (
 	"go_anime/internal/shared/proto/anidb"
 	"go_anime/internal/shared/proto/anilist"
 	"go_anime/internal/shared/proto/animetosho"
+	"go_anime/internal/shared/proto/shikimori"
 	"log/slog"
 	"os"
 
@@ -50,11 +51,12 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 
 	pipe := func() {
 		s.getAniDBId(&anime)
-		// s.GetEpisodes(&anime)
+		// we need anidbId for episode search
+		s.GetEpisodes(&anime)
 	}
 	go pipe()
-	// go s.getAnilibInfo(&anime) // yey my first go routine in this project
-	// go s.getShikiInfo(&anime)
+	go s.getAnilibInfo(&anime) // yey my first go routine in this project
+	go s.getShikiInfo(&anime)
 
 	if result.Error != nil {
 		return nil, result.Error
@@ -89,7 +91,7 @@ func (s *AnimeSevice) GetEpisodes(anime *models.AnimeModel) ([]*models.AnimeEpis
 		slog.Error(resp.ErrorMessage)
 		return nil, errors.New(resp.ErrorMessage)
 	}
-	if resp.Episodes == nil || len(resp.Episodes) == 0 {
+	if !resp.HasEpisodes {
 		slog.Error("No episodes")
 		return nil, errors.New("No episodes")
 	}
@@ -156,25 +158,43 @@ func (s *AnimeSevice) getAnilibInfo(anime *models.AnimeModel) {
 	}
 }
 
-// func (s *AnimeSevice) getShikiInfo(anime *models.AnimeModel) {
-// 	info, err := GetShikiAnimeInfo(anime.Name)
-// 	if err != nil {
-// 		slog.Error(err.Error())
-// 		return
-// 	}
+func (s *AnimeSevice) getShikiInfo(anime *models.AnimeModel) {
+	conn, err := grpc.NewClient(
+		"shikimori:"+os.Getenv("SHIKIMORI_PORT"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		slog.Error("failed to dial shikimori: " + err.Error())
+		return
+	}
+	defer conn.Close()
 
-// 	json, err := json.Marshal(info)
-// 	if err != nil {
-// 		slog.Error(err.Error())
-// 		return
-// 	}
+	client := shikimori.NewShikimoriServiceClient(conn)
+	resp, err := client.GetAnimeInfo(
+		context.Background(),
+		&shikimori.GetAnimeInfoRequest{Search: anime.Name},
+	)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+	if resp.GetError() != nil {
+		slog.Error(resp.GetError().Message)
+		return
+	}
 
-// 	anime.ShikiInfo = string(json)
-// 	result := s.db.Save(anime)
-// 	if result.Error != nil {
-// 		slog.Error(result.Error.Error())
-// 	}
-// }
+	json, err := json.Marshal(resp.Result)
+	if err != nil {
+		slog.Error(err.Error())
+		return
+	}
+
+	anime.ShikiInfo = string(json)
+	result := s.db.Save(anime)
+	if result.Error != nil {
+		slog.Error(result.Error.Error())
+	}
+}
 
 func (s *AnimeSevice) getAniDBId(anime *models.AnimeModel) {
 	conn, err := grpc.NewClient(

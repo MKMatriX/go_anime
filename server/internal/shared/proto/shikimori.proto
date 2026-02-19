@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package shikimori;
+
+option go_package = "/internal/shared/proto/shikimori";
+
+// ShikimoriService — сервис для получения информации об аниме с Shikimori.one (GraphQL)
+service ShikimoriService {
+  // GetAnimeInfo — ищет аниме по строке (название/ромадзи/русское) и возвращает первую подходящую запись
+  rpc GetAnimeInfo(GetAnimeInfoRequest) returns (GetAnimeInfoResponse);
+}
+
+message GetAnimeInfoRequest {
+  string search = 1;  // строка поиска (название аниме)
+}
+
+message GetAnimeInfoResponse {
+  oneof result {
+    ShikiAnime anime = 1;
+    Error     error = 2;
+  }
+}
+
+message ShikiAnime {
+  string id                  = 1;
+  string name                = 2;   // ромадзи / основное
+  string russian             = 3;
+  string english             = 4;
+  string description         = 5;
+  string description_html    = 6;
+  string description_source  = 7;
+  float  score               = 8;
+  string kind                = 9;
+  string status              = 10;
+  int32  episodes            = 11;
+
+  Poster           poster         = 12;
+  repeated PersonRole person_roles = 13;
+  repeated ExternalLink external_links = 14;
+}
+
+message Poster {
+  string id           = 1;
+  string original_url = 2;
+  string main_url     = 3;
+}
+
+message PersonRole {
+  string id        = 1;
+  repeated string roles_ru = 2;
+  repeated string roles_en = 3;
+  Person person    = 4;
+}
+
+message Person {
+  string id    = 1;
+  string name  = 2;
+  Poster poster = 3;  // может быть null → poster будет с пустыми полями
+}
+
+message ExternalLink {
+  string id   = 1;   // может быть null → пустая строка
+  string kind = 2;
+  string url  = 3;
+}
+
+message Error {
+  string message = 1;
+}

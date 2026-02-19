@@ -98,7 +98,7 @@ services:
       target: shikimori
     restart: unless-stopped
     ports:
-      - "${INTERFACE}:8084:8084"  # Внешний:внутренний
+      - "${INTERFACE}:${SHIKIMORI_PORT}:${SHIKIMORI_PORT}"  # Внешний:внутренний
     depends_on:
       db:
         condition: service_healthy
