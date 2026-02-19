@@ -63,7 +63,7 @@ type ShikiGraphQLResponse struct {
 }
 
 func GetShikiAnimeInfo(search string) (*ShikiAnimeRu, error) {
-	const endpoint = "https://shikimori.one/api/graphql"
+	const endpoint = "https://shiki.one/api/graphql"
 
 	query := `
 	query SearchAnime($search: String!) {

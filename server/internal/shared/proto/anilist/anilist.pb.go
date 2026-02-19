@@ -5,8 +5,9 @@ package anilist
 
 import (
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
+
+	proto "github.com/golang/protobuf/proto"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -150,12 +151,12 @@ type AnimeInfo struct {
 	Status               string   `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
 	Episodes             int32    `protobuf:"varint,6,opt,name=episodes,proto3" json:"episodes,omitempty"`
 	Duration             int32    `protobuf:"varint,7,opt,name=duration,proto3" json:"duration,omitempty"`
-	AverageScore         int32    `protobuf:"varint,8,opt,name=average_score,json=averageScore,proto3" json:"average_score,omitempty"`
+	AverageScore         int32    `protobuf:"varint,8,opt,name=average_score,json=averageScore,proto3" json:"averageScore,omitempty"`
 	Genres               []string `protobuf:"bytes,9,rep,name=genres,proto3" json:"genres,omitempty"`
 	Season               string   `protobuf:"bytes,10,opt,name=season,proto3" json:"season,omitempty"`
-	SeasonYear           int32    `protobuf:"varint,11,opt,name=season_year,json=seasonYear,proto3" json:"season_year,omitempty"`
-	StartDate            *Date    `protobuf:"bytes,12,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	CoverImage           *Image   `protobuf:"bytes,13,opt,name=cover_image,json=coverImage,proto3" json:"cover_image,omitempty"`
+	SeasonYear           int32    `protobuf:"varint,11,opt,name=season_year,json=seasonYear,proto3" json:"seasonYear,omitempty"`
+	StartDate            *Date    `protobuf:"bytes,12,opt,name=start_date,json=startDate,proto3" json:"startDate,omitempty"`
+	CoverImage           *Image   `protobuf:"bytes,13,opt,name=cover_image,json=coverImage,proto3" json:"coverImage,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

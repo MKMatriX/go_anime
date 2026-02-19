@@ -98,7 +98,7 @@ func (s *AnimeSevice) GetEpisodes(anime *models.AnimeModel) ([]*models.AnimeEpis
 
 	var modelEpisodes []*models.AnimeEpisodeModel
 	// Сохраняем эпизоды в БД
-	for _, ep := range resp.Episodes {
+	for _, ep := range resp.GetEpisodes() {
 		model := models.AnimeEpisodeModel{
 			AnimeID:       uint(ep.AnimeId),
 			EpisodeNumber: int(ep.EpisodeNumber),
@@ -145,7 +145,7 @@ func (s *AnimeSevice) getAnilibInfo(anime *models.AnimeModel) {
 		return
 	}
 
-	json, err := json.Marshal(resp.Result)
+	json, err := json.Marshal(resp.GetAnime())
 	if err != nil {
 		slog.Error(err.Error())
 		return
@@ -183,7 +183,7 @@ func (s *AnimeSevice) getShikiInfo(anime *models.AnimeModel) {
 		return
 	}
 
-	json, err := json.Marshal(resp.Result)
+	json, err := json.Marshal(resp.GetAnime())
 	if err != nil {
 		slog.Error(err.Error())
 		return

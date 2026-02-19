@@ -145,15 +145,15 @@ type ShikiAnime struct {
 	Russian              string          `protobuf:"bytes,3,opt,name=russian,proto3" json:"russian,omitempty"`
 	English              string          `protobuf:"bytes,4,opt,name=english,proto3" json:"english,omitempty"`
 	Description          string          `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	DescriptionHtml      string          `protobuf:"bytes,6,opt,name=description_html,json=descriptionHtml,proto3" json:"description_html,omitempty"`
-	DescriptionSource    string          `protobuf:"bytes,7,opt,name=description_source,json=descriptionSource,proto3" json:"description_source,omitempty"`
+	DescriptionHtml      string          `protobuf:"bytes,6,opt,name=description_html,json=descriptionHtml,proto3" json:"descriptionHtml,omitempty"`
+	DescriptionSource    string          `protobuf:"bytes,7,opt,name=description_source,json=descriptionSource,proto3" json:"descriptionSource,omitempty"`
 	Score                float32         `protobuf:"fixed32,8,opt,name=score,proto3" json:"score,omitempty"`
 	Kind                 string          `protobuf:"bytes,9,opt,name=kind,proto3" json:"kind,omitempty"`
 	Status               string          `protobuf:"bytes,10,opt,name=status,proto3" json:"status,omitempty"`
 	Episodes             int32           `protobuf:"varint,11,opt,name=episodes,proto3" json:"episodes,omitempty"`
 	Poster               *Poster         `protobuf:"bytes,12,opt,name=poster,proto3" json:"poster,omitempty"`
-	PersonRoles          []*PersonRole   `protobuf:"bytes,13,rep,name=person_roles,json=personRoles,proto3" json:"person_roles,omitempty"`
-	ExternalLinks        []*ExternalLink `protobuf:"bytes,14,rep,name=external_links,json=externalLinks,proto3" json:"external_links,omitempty"`
+	PersonRoles          []*PersonRole   `protobuf:"bytes,13,rep,name=person_roles,json=personRoles,proto3" json:"personRoles,omitempty"`
+	ExternalLinks        []*ExternalLink `protobuf:"bytes,14,rep,name=external_links,json=externalLinks,proto3" json:"externalLinks,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
 	XXX_unrecognized     []byte          `json:"-"`
 	XXX_sizecache        int32           `json:"-"`
@@ -284,8 +284,8 @@ func (m *ShikiAnime) GetExternalLinks() []*ExternalLink {
 
 type Poster struct {
 	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	OriginalUrl          string   `protobuf:"bytes,2,opt,name=original_url,json=originalUrl,proto3" json:"original_url,omitempty"`
-	MainUrl              string   `protobuf:"bytes,3,opt,name=main_url,json=mainUrl,proto3" json:"main_url,omitempty"`
+	OriginalUrl          string   `protobuf:"bytes,2,opt,name=original_url,json=originalUrl,proto3" json:"originalUrl,omitempty"`
+	MainUrl              string   `protobuf:"bytes,3,opt,name=main_url,json=mainUrl,proto3" json:"mainUrl,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -339,8 +339,8 @@ func (m *Poster) GetMainUrl() string {
 
 type PersonRole struct {
 	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	RolesRu              []string `protobuf:"bytes,2,rep,name=roles_ru,json=rolesRu,proto3" json:"roles_ru,omitempty"`
-	RolesEn              []string `protobuf:"bytes,3,rep,name=roles_en,json=rolesEn,proto3" json:"roles_en,omitempty"`
+	RolesRu              []string `protobuf:"bytes,2,rep,name=roles_ru,json=rolesRu,proto3" json:"rolesRu,omitempty"`
+	RolesEn              []string `protobuf:"bytes,3,rep,name=roles_en,json=rolesEn,proto3" json:"rolesEn,omitempty"`
 	Person               *Person  `protobuf:"bytes,4,opt,name=person,proto3" json:"person,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
