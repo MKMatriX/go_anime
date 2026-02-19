@@ -126,6 +126,29 @@ func GetToshoEpisodes(aniDBId uint) ([]ToshoItem, error) {
 }
 
 // ---- to model
+func GetParsedToshoEpisodes(aniDBId uint, animeId uint) ([]*models.AnimeEpisodeModel, error) {
+	var dbEpisodes []*models.AnimeEpisodeModel
+
+	toshoItems, err := GetToshoEpisodes(aniDBId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, toshoItem := range toshoItems {
+		episode, ok := ParseToshoItemToEpisode(toshoItem, animeId)
+		if ok {
+			dbEpisodes = append(dbEpisodes, &episode)
+		} else {
+			fmt.Println("Failed to parse Tosho item ", toshoItem)
+		}
+	}
+
+	if len(toshoItems) == 0 {
+		return nil, fmt.Errorf("Failed to find or parse episodes on animetosho for anime with ID %d", animeId)
+	}
+
+	return dbEpisodes, nil
+}
 
 // ParseToshoItemToEpisode пытается преобразовать item из AnimeTosho в AnimeEpisodeModel
 // Возвращает модель + bool (ok = удалось ли адекватно распарсить)

@@ -1,51 +1,66 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"log/slog"
+	"net"
+	"os"
 
-	"go_anime/internal/handlers"
-	"go_anime/internal/shared/init_db"
+	animetoshoService "go_anime/internal/services/animetosho"
+	"go_anime/internal/shared/proto/animetosho"
+	pb "go_anime/internal/shared/proto/animetosho"
 
-	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v5"
-	"github.com/labstack/echo/v5/middleware"
-	_ "github.com/lib/pq"
-	"gorm.io/gorm"
+	"google.golang.org/grpc"
 )
 
-type Application struct {
-	server  *echo.Echo
-	db      *gorm.DB
-	handler *handlers.Handler
+type server struct {
+	pb.UnimplementedAnimeToshoServiceServer
+}
+
+func (s *server) GetParsedEpisodes(ctx context.Context, req *pb.GetParsedEpisodesRequest) (*pb.GetParsedEpisodesResponse, error) {
+	log.Printf("AnimeTosho request: AniDB %d → Anime %d", req.AnidbId, req.AnimeId)
+
+	episodes, err := animetoshoService.GetParsedToshoEpisodes(
+		uint(req.AnidbId),
+		uint(req.AnimeId),
+	)
+
+	resp := &pb.GetParsedEpisodesResponse{
+		HasEpisodes: len(episodes) > 0,
+	}
+
+	if err != nil {
+		resp.ErrorMessage = err.Error()
+		return resp, nil
+	}
+
+	for _, model := range episodes {
+		protoEp := &pb.AnimeEpisode{
+			AnimeId:       uint32(model.AnimeID),
+			EpisodeNumber: int32(model.EpisodeNumber),
+			Name:          model.Name,
+			Translator:    model.Translator,
+			Width:         model.Width,
+			TorrentUrl:    model.TorrentUrl,
+			MagnetUrl:     model.MagnetUrl,
+			LocalUrl:      model.LocalUrl,
+		}
+		resp.Episodes = append(resp.Episodes, protoEp)
+	}
+
+	return resp, nil
 }
 
 func main() {
-	_ = godotenv.Load()
-
-	dsn := init_db.GetDsn()
-	db := init_db.InitDb(dsn)
-	e := echo.New()
-
-	h := handlers.NewHandler(db)
-
-	app := Application{
-		server:  e,
-		db:      db,
-		handler: h,
+	lis, err := net.Listen("tcp", ":"+os.Getenv("ANIMETOSHO_PORT"))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
 	}
 
-	app.server.Use(middleware.RequestLogger()) // use the RequestLogger middleware with slog logger
-	app.server.Use(middleware.Recover())       // recover panics as errors for proper error handling
-
-	apiV1Group := app.server.Group("/api/v1")
-
-	startMessage := fmt.Sprintf("Server starting on :%s", 8083)
-	log.Println(startMessage)
-
-	address := fmt.Sprintf(":%s", 8083)
-	if err := e.Start(address); err != nil {
-		slog.Error("failed to start server", "error", err)
+	s := grpc.NewServer()
+	animetosho.RegisterAnimeToshoServiceServer(s, &server{})
+	log.Printf("AnimeTosho gRPC server listening on :" + os.Getenv("ANIMETOSHO_PORT"))
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
 }

@@ -3,11 +3,13 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go_anime/internal/requests"
 	"go_anime/internal/shared/models"
 	"go_anime/internal/shared/proto/anidb"
 	"go_anime/internal/shared/proto/anilist"
+	"go_anime/internal/shared/proto/animetosho"
 	"log/slog"
 	"os"
 
@@ -46,12 +48,12 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 	}
 	result := s.db.Create(&anime)
 
-	// pipe := func() {
-	// 	s.getAniDBId(&anime)
-	// 	// s.GetEpisodes(&anime)
-	// }
-	// go pipe()
-	go s.getAnilibInfo(&anime) // yey my first go routine in this project
+	pipe := func() {
+		s.getAniDBId(&anime)
+		// s.GetEpisodes(&anime)
+	}
+	go pipe()
+	// go s.getAnilibInfo(&anime) // yey my first go routine in this project
 	// go s.getShikiInfo(&anime)
 
 	if result.Error != nil {
@@ -60,30 +62,61 @@ func (s *AnimeSevice) Create(request *requests.AnimeCreateRequest) (*models.Anim
 	return &anime, nil
 }
 
-// func (s *AnimeSevice) GetEpisodes(anime *models.AnimeModel) ([]*models.AnimeEpisodeModel, error) {
-// 	var dbEpisodes []*models.AnimeEpisodeModel
+func (s *AnimeSevice) GetEpisodes(anime *models.AnimeModel) ([]*models.AnimeEpisodeModel, error) {
+	conn, err := grpc.NewClient(
+		"animetosho:"+os.Getenv("ANIMETOSHO_PORT"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		slog.Error("failed to dial animetosho: " + err.Error())
+		return nil, err
+	}
+	defer conn.Close()
 
-// 	toshoItems, err := GetToshoEpisodes(anime.AniDBId)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	client := animetosho.NewAnimeToshoServiceClient(conn)
+	resp, err := client.GetParsedEpisodes(
+		context.Background(),
+		&animetosho.GetParsedEpisodesRequest{
+			AnidbId: uint32(anime.AniDBId),
+			AnimeId: uint32(anime.ID),
+		},
+	)
+	if err != nil {
+		slog.Error(err.Error())
+		return nil, err
+	}
+	if resp.ErrorMessage != "" {
+		slog.Error(resp.ErrorMessage)
+		return nil, errors.New(resp.ErrorMessage)
+	}
+	if resp.Episodes == nil || len(resp.Episodes) == 0 {
+		slog.Error("No episodes")
+		return nil, errors.New("No episodes")
+	}
 
-// 	for _, toshoItem := range toshoItems {
-// 		episode, ok := ParseToshoItemToEpisode(toshoItem, anime.ID)
-// 		if ok {
-// 			dbEpisodes = append(dbEpisodes, &episode)
-// 		} else {
-// 			fmt.Println("Failed to parse Tosho item ", toshoItem)
-// 		}
-// 	}
+	var modelEpisodes []*models.AnimeEpisodeModel
+	// Сохраняем эпизоды в БД
+	for _, ep := range resp.Episodes {
+		model := models.AnimeEpisodeModel{
+			AnimeID:       uint(ep.AnimeId),
+			EpisodeNumber: int(ep.EpisodeNumber),
+			Name:          ep.Name,
+			Translator:    ep.Translator,
+			Width:         ep.Width,
+			TorrentUrl:    ep.TorrentUrl,
+			MagnetUrl:     ep.MagnetUrl,
+			LocalUrl:      ep.LocalUrl,
+		}
+		modelEpisodes = append(modelEpisodes, &model)
+	}
 
-// 	result := s.db.Create(dbEpisodes)
-// 	if result.Error != nil {
-// 		return nil, result.Error
-// 	}
+	// result := s.db.Create(modelEpisodes)
+	// if result.Error != nil {
+	// 	return nil, result.Error
+	// }
 
-// 	return dbEpisodes, nil
-// }
+	return modelEpisodes, nil
+}
 
 func (s *AnimeSevice) getAnilibInfo(anime *models.AnimeModel) {
 	conn, err := grpc.NewClient(

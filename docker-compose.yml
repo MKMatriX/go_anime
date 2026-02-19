@@ -75,7 +75,7 @@ services:
       target: animetosho
     restart: unless-stopped
     ports:
-      - "${INTERFACE}:8083:8083"  # Внешний:внутренний
+      - "${INTERFACE}:${ANIMETOSHO_PORT}:${ANIMETOSHO_PORT}"  # Внешний:внутренний
     depends_on:
       db:
         condition: service_healthy

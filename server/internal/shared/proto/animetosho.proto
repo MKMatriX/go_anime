@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package animetosho;
+
+option go_package = "internal/shared/proto/animetosho";
+
+// AnimeToshoService — сервис для получения торрент-эпизодов с AnimeTosho
+service AnimeToshoService {
+  // GetParsedEpisodes — аналог GetParsedToshoEpisodes
+  // Возвращает список готовых к сохранению в БД эпизодов
+  rpc GetParsedEpisodes(GetParsedEpisodesRequest) returns (GetParsedEpisodesResponse);
+}
+
+// Запрос
+message GetParsedEpisodesRequest {
+  uint32 anidb_id = 1;     // AniDB AID (обязательно)
+  uint32 anime_id = 2;     // Внутренний ID аниме в вашей БД (чтобы заполнить AnimeID в модели)
+}
+
+// Ответ
+message GetParsedEpisodesResponse {
+  repeated AnimeEpisode episodes     = 1;
+  string             error_message   = 2;   // заполняется при ошибке
+  bool               has_episodes    = 3;   // true если episodes не пустой
+}
+
+// Структура, максимально близкая к вашей AnimeEpisodeModel
+message AnimeEpisode {
+  uint32 anime_id       = 1;   // AnimeID
+  int32  episode_number = 2;   // EpisodeNumber
+  string name           = 3;   // Name
+  string translator     = 4;   // Translator (группа)
+  string width          = 5;   // Width / разрешение (720p, 1080p и т.д.)
+  string torrent_url    = 6;   // TorrentUrl
+  string magnet_url     = 7;   // MagnetUrl (пока пусто в вашем коде, но оставляем)
+  string local_url      = 8;   // LocalUrl (пока пусто, заполняется позже)
+}
