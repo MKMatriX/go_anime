@@ -38,6 +38,7 @@ func (s *server) GetParsedEpisodes(ctx context.Context, req *pb.GetParsedEpisode
 		protoEp := &pb.AnimeEpisode{
 			AnimeId:       uint32(model.AnimeID),
 			EpisodeNumber: int32(model.EpisodeNumber),
+			FullName:      model.FullName,
 			Name:          model.Name,
 			Translator:    model.Translator,
 			Width:         model.Width,

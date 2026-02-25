@@ -8,9 +8,10 @@ type AnimeEpisodeModel struct {
 
 	EpisodeNumber int    `json:"episodeNumber"`
 	Name          string `json:"name"`
+	FullName      string `json:"fullName"`
 	Translator    string `json:"translator"`
 	Width         string `json:"width"`
-	TorrentUrl    string `json:"torrentUrl"`
+	TorrentUrl    string `json:"torrentUrl" gorm:"uniqueIndex"`
 	MagnetUrl     string `json:"magnetUrl"`
 	LocalUrl      string `json:"localUrl"`
 }

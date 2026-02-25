@@ -163,6 +163,7 @@ func ParseToshoItemToEpisode(item ToshoItem, animeID uint) (models.AnimeEpisodeM
 	}
 
 	title := strings.TrimSpace(item.Title)
+	ep.FullName = title
 
 	// 1. Извлекаем номер эпизода
 	epNum := extractEpisodeNumber(title)

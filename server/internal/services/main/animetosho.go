@@ -10,6 +10,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"gorm.io/gorm/clause"
 )
 
 func (s *AnimeSevice) GetEpisodes(anime *models.AnimeModel) ([]*models.AnimeEpisodeModel, error) {
@@ -51,6 +52,7 @@ func (s *AnimeSevice) GetEpisodes(anime *models.AnimeModel) ([]*models.AnimeEpis
 			AnimeID:       uint(ep.AnimeId),
 			EpisodeNumber: int(ep.EpisodeNumber),
 			Name:          ep.Name,
+			FullName:      ep.FullName,
 			Translator:    ep.Translator,
 			Width:         ep.Width,
 			TorrentUrl:    ep.TorrentUrl,
@@ -60,7 +62,13 @@ func (s *AnimeSevice) GetEpisodes(anime *models.AnimeModel) ([]*models.AnimeEpis
 		modelEpisodes = append(modelEpisodes, &model)
 	}
 
-	result := s.db.Create(modelEpisodes)
+	result := s.db.
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "torrent_url"}}, // или "torrentUrl" — зависит от имени колонки в БД
+			DoNothing: true,
+		}).
+		Create(modelEpisodes)
+
 	if result.Error != nil {
 		return nil, result.Error
 	}

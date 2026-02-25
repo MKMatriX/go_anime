@@ -17,6 +17,10 @@
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3">
               <h3 class="text-lg font-medium text-gray-100 truncate group-hover:text-indigo-400 transition-colors">
                 {{ cleanEpisodeName(episode.name) }}
+                <br/>
+                <small>
+                  {{ suffixes(episode.fullName) }}
+                </small>
               </h3>
 
               <div class="flex items-center gap-3 flex-wrap">
@@ -70,6 +74,15 @@ const props = defineProps({
 const sortedEpisodes = computed(() => {
   return [...props.data].sort((a, b) => b.episodeNumber - a.episodeNumber)
 })
+
+const suffixes = (fullName) => {
+  const match = fullName.match(/\[(.*?)\]/g)
+  if (match && match.length >= 2) {
+    const second = match[1].slice(1, -1)
+    return second
+  }
+  return ""
+}
 
 const cleanEpisodeName = (name) => {
   // Убираем повторяющееся название аниме + номер из поля name

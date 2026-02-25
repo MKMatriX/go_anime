@@ -34,4 +34,5 @@ message AnimeEpisode {
   string torrent_url    = 6;   // TorrentUrl
   string magnet_url     = 7;   // MagnetUrl (пока пусто в вашем коде, но оставляем)
   string local_url      = 8;   // LocalUrl (пока пусто, заполняется позже)
+  string full_name      = 9;
 }
