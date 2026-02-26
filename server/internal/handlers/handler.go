@@ -44,3 +44,14 @@ func (h *Handler) bindIdParam(c *echo.Context, idParamRequest *requests.IdParamR
 
 	return nil
 }
+
+func (h *Handler) bindParam(c *echo.Context, request interface{}) error {
+	err := echo.BindPathValues(c, request)
+
+	if err != nil {
+		common.SendBadRequestResponse(c, "Couldn't bind params")
+		return errors.New("Binding param error")
+	}
+
+	return nil
+}

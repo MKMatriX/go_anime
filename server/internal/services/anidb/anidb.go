@@ -1,4 +1,3 @@
-// services/anidb_search.go
 package services
 
 import (
@@ -129,6 +128,7 @@ func loadOrDownloadTitles() ([]TitleEntry, error) {
 
 	return parseAnimeTitles(f)
 }
+
 func parseAnimeTitles(r io.Reader) ([]TitleEntry, error) {
 	var titles []TitleEntry
 
@@ -191,4 +191,40 @@ func httpGetWithUA(url string) (*http.Response, error) {
 
 	client := &http.Client{Timeout: 45 * time.Second}
 	return client.Do(req)
+}
+
+func AutocompleteSearch(query string) ([]TitleEntry, error) {
+	var result []TitleEntry
+
+	qLower := strings.ToLower(query)
+
+	entries, err := loadOrDownloadTitles()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, e := range entries {
+		if strings.Contains(strings.ToLower(e.Title), qLower) {
+			result = append(result, e)
+		}
+	}
+
+	return result, nil
+}
+
+func GetOtherNames(AID int) ([]TitleEntry, error) {
+	var result []TitleEntry
+
+	entries, err := loadOrDownloadTitles()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, e := range entries {
+		if e.AID == AID {
+			result = append(result, e)
+		}
+	}
+
+	return result, nil
 }

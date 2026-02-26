@@ -6,6 +6,8 @@ option go_package = "go_anime/internal/shared/proto/anidb";
 
 service AniDBService {
   rpc GetAniDBId(GetAniDBIdRequest) returns (GetAniDBIdResponse);
+  rpc AutocompleteSearch(GetAniDBIdRequest) returns (AnimeTitles);
+  rpc GetOtherNames(AnimeIdRequest) returns (AnimeTitles);
 }
 
 message GetAniDBIdRequest {
@@ -15,4 +17,20 @@ message GetAniDBIdRequest {
 message GetAniDBIdResponse {
   int32 id = 1;
   string error = 2;  // Если ошибка, вернём строку (или используйте status codes)
+}
+
+message AnimeTitle {
+  int32 anime_id = 1;
+  string type = 2;
+  string lang = 3;
+  string title = 4;
+}
+
+message AnimeTitles {
+  repeated AnimeTitle titles = 1;
+  string error = 2;
+}
+
+message AnimeIdRequest {
+  int32 anime_id = 1;
 }

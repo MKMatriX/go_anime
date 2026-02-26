@@ -14,3 +14,7 @@ type AnimeCreateRequest struct {
 // type AnimeDeleteRequest struct {
 // 	ID uint `json:"id" validate:"required"`
 // }
+
+type AnimeAutocompleteRequest struct {
+	Query string `path:"query" param:"query" binding:"required"`
+}
