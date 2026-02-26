@@ -1,28 +1,31 @@
 <template>
 	<div class="bg-white shadow rounded-lg p-6">
-		<h2 class="text-2xl font-semibold mb-4">
-			Добавить аниме
-		</h2>
+		<h2 class="text-2xl font-semibold mb-4">Добавить аниме</h2>
 
 		<form @submit.prevent="onSubmit" class="space-y-4">
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-1">
-					Название
-				</label>
+				<label class="block text-sm font-medium text-gray-700 mb-1">Название</label>
 				<input
 					v-model="form.name"
 					type="text"
+					list="anime-titles"
+					placeholder="Начните вводить название..."
 					class="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+					@input="fetchSuggestions"
+					autocomplete="off"
 				/>
+				<datalist id="anime-titles">
+					<option v-for="item in suggestions" :key="item.AID" :value="item.Title">
+						{{ item.Title }} ({{ item.Lang }})
+					</option>
+				</datalist>
 				<p v-if="errors.name" class="text-xs text-red-600 mt-1">
 					{{ errors.name }}
 				</p>
 			</div>
 
 			<div>
-				<label class="block text-sm font-medium text-gray-700 mb-1">
-					Описание
-				</label>
+				<label class="block text-sm font-medium text-gray-700 mb-1">Описание</label>
 				<input
 					v-model="form.description"
 					type="text"
@@ -50,45 +53,74 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import { useAnimeStore } from '../../stores/anime'
+	import { reactive, ref } from "vue";
+	import { useRouter } from "vue-router";
+	import { useAnimeStore } from "../../stores/anime";
+	import { autocompleteRequest } from "../../api/anime";
 
-const animeStore = useAnimeStore()
-const router = useRouter()
+	const animeStore = useAnimeStore();
+	const router = useRouter();
 
-const form = reactive({
-  name: '',
-  description: '',
-})
+	const form = reactive({
+		name: "",
+		description: "",
+	});
 
-const errors = reactive({
-  name: '',
-  description: '',
-})
+	const errors = reactive({
+		name: "",
+		description: "",
+	});
 
-const validate = () => {
-  errors.name = ''
-  errors.description = ''
+	const suggestions = ref([]);
 
-  if (!form.name.trim()) {
-    errors.name = 'Name is required'
-  }
+	let debounceTimer = null;
 
-  return !errors.name
-}
+	const fetchSuggestions = () => {
+		clearTimeout(debounceTimer);
 
-const onSubmit = async () => {
-  if (!validate()) return
-  try {
-    let anime = await animeStore.add({
-      name: form.name,
-      description: form.description,
-    })
+		const query = form.name.trim();
+		if (query.length < 2) {
+			suggestions.value = [];
+			return;
+		}
 
-	router.push({ name: 'anime.detail', params: {id: anime.id} })
-  } catch {
-    // error already set in auth.error
-  }
-}
+		debounceTimer = setTimeout(async () => {
+			try {
+				const response = await autocompleteRequest(query);
+				if (response.success) {
+					suggestions.value = response.data || [];
+				} else {
+					suggestions.value = [];
+				}
+			} catch (err) {
+				console.error("Ошибка автокомплита:", err);
+				suggestions.value = [];
+			}
+		}, 350); // debounce 350 мс
+	};
+
+	const validate = () => {
+		errors.name = "";
+		errors.description = "";
+
+		if (!form.name.trim()) {
+			errors.name = "Name is required";
+		}
+
+		return !errors.name;
+	};
+
+	const onSubmit = async () => {
+		if (!validate()) return;
+		try {
+			let anime = await animeStore.add({
+				name: form.name,
+				description: form.description,
+			});
+
+			router.push({ name: "anime.detail", params: { id: anime.id } });
+		} catch {
+			// error already set in auth.error
+		}
+	};
 </script>

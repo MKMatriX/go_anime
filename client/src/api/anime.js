@@ -20,3 +20,7 @@ export async function deleteRequest(id) {
 export async function editRequest(id, params) {
 	return await api.put("/anime/" + id, params)
 }
+
+export async function autocompleteRequest(query) {
+	return await api.get("/anime/ac/" + encodeURIComponent(query))
+}

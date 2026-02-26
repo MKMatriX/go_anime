@@ -203,8 +203,12 @@ func AutocompleteSearch(query string) ([]TitleEntry, error) {
 		return nil, err
 	}
 
+	allowedLangs := map[string]struct{}{"ru": {}, "x-jat": {}, "en": {}, "ja": {}, "id": {}}
+
 	for _, e := range entries {
-		if strings.Contains(strings.ToLower(e.Title), qLower) {
+		_, ok := allowedLangs[e.Lang]
+
+		if ok && strings.Contains(strings.ToLower(e.Title), qLower) {
 			result = append(result, e)
 		}
 	}
