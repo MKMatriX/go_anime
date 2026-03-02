@@ -30,15 +30,6 @@ services:
     restart: unless-stopped
     ports:
       - "${INTERFACE}:${ANIDB_PORT}:${ANIDB_PORT}"  # Внешний:внутренний
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      - DB_HOST=db
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
     env_file:
       - .env
     volumes:
@@ -53,15 +44,6 @@ services:
     restart: unless-stopped
     ports:
       - "${INTERFACE}:${ANILIST_PORT}:${ANILIST_PORT}"  # Внешний:внутренний
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      - DB_HOST=db
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
     env_file:
       - .env
     volumes:
@@ -76,15 +58,6 @@ services:
     restart: unless-stopped
     ports:
       - "${INTERFACE}:${ANIMETOSHO_PORT}:${ANIMETOSHO_PORT}"  # Внешний:внутренний
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      - DB_HOST=db
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
     env_file:
       - .env
     volumes:
@@ -99,15 +72,19 @@ services:
     restart: unless-stopped
     ports:
       - "${INTERFACE}:${SHIKIMORI_PORT}:${SHIKIMORI_PORT}"  # Внешний:внутренний
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      - DB_HOST=db
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+    env_file:
+      - .env
+    volumes:
+      - downloads:/downloads
+    networks:
+      - local
+  files:
+    build:
+      context: .
+      target: files
+    restart: unless-stopped
+    ports:
+      - "${INTERFACE}:${FILES_PORT}:${FILES_PORT}"  # Внешний:внутренний
     env_file:
       - .env
     volumes:

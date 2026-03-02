@@ -19,6 +19,8 @@ FROM builder-base AS builder-animetosho
 RUN CGO_ENABLED=0 GOOS=linux go build -o /builded-animetosho ./cmd/app/animetosho
 FROM builder-base AS builder-shikimori
 RUN CGO_ENABLED=0 GOOS=linux go build -o /builded-shikimori ./cmd/app/shikimori
+FROM builder-base AS builder-files
+RUN CGO_ENABLED=0 GOOS=linux go build -o /builded-files ./cmd/app/files
 
 
 # -------- сервера ----------
@@ -48,4 +50,8 @@ CMD ["/builded"]
 FROM runtime AS shikimori
 COPY --from=builder-shikimori /builded-shikimori /builded
 EXPOSE 8084
+CMD ["/builded"]
+FROM runtime AS files
+COPY --from=builder-files /builded-files /builded
+EXPOSE 8085
 CMD ["/builded"]
